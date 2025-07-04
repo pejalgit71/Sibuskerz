@@ -42,7 +42,7 @@ def search_lyrics_online(artist, title):
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 Busker Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
-st.title("🎶 Busker Lyrics Performance App")
+st.title("🎶 SIBuskerz Lyrics Performance App")
 
 menu = ["📖 View Lyrics", "➕ Add New Song", "🌐 Search Lyrics Online"]
 choice = st.sidebar.radio("Menu", menu)
