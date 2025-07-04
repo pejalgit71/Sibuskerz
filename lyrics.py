@@ -3,6 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 import requests
+import json
 
 # --- Google Sheets Setup ---
 SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"
@@ -11,7 +12,8 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapi
 
 @st.cache_resource
 def get_gsheet_connection():
-    creds = Credentials.from_service_account_file("myflowutp-7ef821b8e6d0.json", scopes=SCOPES)
+    credentials_dict = json.loads(st.secrets["GSHEET_CREDENTIALS"])
+    creds = Credentials.from_service_account_info(credentials_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
     worksheet = client.open_by_key(SHEET_ID).worksheet(WORKSHEET_NAME)
     return worksheet
