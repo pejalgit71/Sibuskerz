@@ -62,10 +62,9 @@ st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
 st.title("🎶 SIBuskerz Lyrics Performance App©")
 
-# menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members"]
+menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members", "🎤 Performance Mode"]
 # choice = st.sidebar.radio("Menu", menu)
 
-menu = ["🎵 Browse Lyrics", "➕ Add New Song", "🔍 Search Lyrics", "👥 Meet The Members", "🎤 Performance Mode"]
 choice = st.sidebar.selectbox("Navigation", menu)
 
 
