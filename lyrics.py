@@ -39,7 +39,7 @@ def get_lyrics_df(songs_worksheet):
 def add_new_song(songs_worksheet, title, artist, lyrics):
     songs_worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
 
-def load_members(members_sheet):
+def load_members(members_worksheet):
     df = pd.DataFrame(members_sheet.get_all_records())
     return df.to_dict(orient="records")    
 
@@ -167,6 +167,8 @@ elif choice == "🌐 Search Lyrics Online":
                 
 elif choice == "👥 Meet The Members":
     st.subheader("🎸 SiBuskerz Members")
+
+    members = load_members(members_worksheet)
 
     for member in members:
         with st.container():
