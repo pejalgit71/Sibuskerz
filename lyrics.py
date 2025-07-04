@@ -51,17 +51,17 @@ worksheet = get_worksheet()
 lyrics_df = get_lyrics_df(worksheet)
 
 # --- CSS for readable text ---
-st.markdown("""
-    <style>
-    .big-lyrics textarea {
-        font-size: 22px !important;
-        color:DodgerBlue;
-        font-family: monospace;
-        background-color: #f9f9f9;
-        line-height: 1.7;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# st.markdown("""
+#     <style>
+#     .big-lyrics textarea {
+#         font-size: 22px !important;
+#         color:DodgerBlue;
+#         font-family: monospace;
+#         background-color: #f9f9f9;
+#         line-height: 1.7;
+#     }
+#     </style>
+# """, unsafe_allow_html=True)
 
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics":
@@ -78,8 +78,8 @@ if choice == "📖 View Lyrics":
     textarea {
         font-size: 24px !important;
         font-family: 'Courier New', monospace !important;
-        color: black !important;
-        background-color: #fffbe6 !important;
+        color: #ffffff !important;
+        background-color: #1e1e1e !important;
         line-height: 1.6 !important;
         padding: 10px !important;
     }
