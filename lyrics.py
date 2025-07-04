@@ -40,9 +40,9 @@ def search_lyrics_online(artist, title):
         return "Error fetching lyrics."
 
 # --- STREAMLIT UI ---
-st.set_page_config(page_title="🎤 Busker Lyrics App", layout="wide")
+st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
-st.title("🎶 SIBuskerz Lyrics Performance App")
+st.title("🎶 SIBuskerz Lyrics Performance App©")
 
 menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online"]
 choice = st.sidebar.radio("Menu", menu)
