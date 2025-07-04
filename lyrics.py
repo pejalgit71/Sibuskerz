@@ -168,7 +168,7 @@ elif choice == "🌐 Search Lyrics Online":
 elif choice == "👥 Meet The Members":
     st.subheader("🎸 SiBuskerz Members")
 
-    members = load_members(members_worksheet)
+    members = load_members(members_sheet)
 
     for member in members:
         with st.container():
