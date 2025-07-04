@@ -1,0 +1,86 @@
+import streamlit as st
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+import requests
+
+# --- Google Sheets Setup ---
+SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"
+WORKSHEET_NAME = "lyrics"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+@st.cache_resource
+def get_gsheet_connection():
+    creds = Credentials.from_service_account_file("myflowutp-7ef821b8e6d0.json", scopes=SCOPES)
+    client = gspread.authorize(creds)
+    worksheet = client.open_by_key(SHEET_ID).worksheet(WORKSHEET_NAME)
+    return worksheet
+
+def get_lyrics_df(worksheet):
+    data = worksheet.get_all_records()
+    return pd.DataFrame(data)
+
+def add_new_song(worksheet, title, artist, lyrics):
+    worksheet.append_row([title, artist, lyrics])
+
+# --- Online Lyrics API ---
+def search_lyrics_online(artist, title):
+    try:
+        url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
+        res = requests.get(url)
+        if res.status_code == 200:
+            return res.json().get('lyrics', 'Lyrics not found.')
+        else:
+            return "Lyrics not found online."
+    except:
+        return "Error fetching lyrics."
+
+# --- Main App ---
+st.set_page_config(page_title="🎤 SI Busker Lyrics App", layout="wide")
+st.title("🎶 SI Busker Lyrics Performance App")
+
+worksheet = get_gsheet_connection()
+lyrics_df = get_lyrics_df(worksheet)
+
+menu = ["📖 View Lyrics", "➕ Add New Song", "🌐 Search Lyrics Online"]
+choice = st.sidebar.radio("Menu", menu)
+
+if choice == "📖 View Lyrics":
+    st.subheader("Select a song to view lyrics")
+    song_titles = lyrics_df['Title'] + " - " + lyrics_df['Artist']
+    selection = st.selectbox("Song List", song_titles)
+    if selection:
+        title, artist = selection.split(" - ")
+        row = lyrics_df[(lyrics_df['Title'] == title) & (lyrics_df['Artist'] == artist)].iloc[0]
+        st.markdown(f"### 🎵 {row['Title']} by {row['Artist']}")
+        st.text_area("Lyrics", value=row['Lyrics'], height=400, key="view_lyrics", label_visibility="collapsed")
+
+elif choice == "➕ Add New Song":
+    st.subheader("Add a new song")
+    with st.form("add_song_form"):
+        new_title = st.text_input("Song Title")
+        new_artist = st.text_input("Artist Name")
+        new_lyrics = st.text_area("Paste Lyrics Here", height=300)
+        submitted = st.form_submit_button("Add to Sheet")
+
+        if submitted:
+            if new_title and new_artist and new_lyrics:
+                add_new_song(worksheet, new_title, new_artist, new_lyrics)
+                st.success(f"✅ '{new_title}' by {new_artist} added!")
+            else:
+                st.error("Please fill in all fields.")
+
+elif choice == "🌐 Search Lyrics Online":
+    st.subheader("Search lyrics from the web")
+    with st.form("search_online"):
+        artist = st.text_input("Artist")
+        title = st.text_input("Song Title")
+        search = st.form_submit_button("Search")
+
+        if search and artist and title:
+            lyrics = search_lyrics_online(artist, title)
+            st.text_area("Lyrics Result", value=lyrics, height=400)
+            if "not found" not in lyrics.lower():
+                if st.button("Save to Google Sheet"):
+                    add_new_song(worksheet, title, artist, lyrics)
+                    st.success(f"✅ '{title}' by {artist} added to Google Sheet!")
