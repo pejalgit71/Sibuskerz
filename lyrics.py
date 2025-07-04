@@ -71,6 +71,17 @@ if choice == "📖 View Lyrics":
         title, artist = selection.split(" - ")
         row = lyrics_df[(lyrics_df['Title'] == title) & (lyrics_df['Artist'] == artist)].iloc[0]
         st.markdown(f"### 🎵 {row['Title']} by {row['Artist']}")
+        st.markdown("""
+    <style>
+    textarea {
+        font-size: 22px !important;
+        font-family: monospace;
+        background-color: #f9f9f9;
+        line-height: 1.7;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
         st.text_area("Lyrics", value=row['Lyrics'], height=600, key="view_lyrics", label_visibility="collapsed", disabled=True)
 
 # --- ADD NEW SONG ---
