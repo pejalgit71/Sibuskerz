@@ -176,7 +176,7 @@ elif choice == "👥 Meet The Members":
             with cols[0]:
                 st.image(member["Photo"], use_container_width=True)
             with cols[1]:
-                st.markdown(f"### {member['name']}")
-                st.markdown(f"**Role:** {member['role']}")
-                st.markdown(f"*{member['bio']}*")
+                st.markdown(f"### {member['Name']}")
+                st.markdown(f"**Role:** {member['Role']}")
+                st.markdown(f"*{member['Bio']}*")
         st.markdown("---")
