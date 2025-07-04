@@ -62,8 +62,12 @@ st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
 st.title("🎶 SIBuskerz Lyrics Performance App©")
 
-menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members"]
-choice = st.sidebar.radio("Menu", menu)
+# menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members"]
+# choice = st.sidebar.radio("Menu", menu)
+
+menu = ["🎵 Browse Lyrics", "➕ Add New Song", "🔍 Search Lyrics", "👥 Meet The Members", "🎤 Performance Mode"]
+choice = st.sidebar.selectbox("Navigation", menu)
+
 
 worksheet, members_sheet = get_worksheets()
 # worksheet = get_worksheet()
@@ -180,3 +184,50 @@ elif choice == "👥 Meet The Members":
                 st.markdown(f"**Role:** {member['Role']}")
                 st.markdown(f"*{member['Bio']}*")
         st.markdown("---")
+        
+elif choice == "🎤 Performance Mode":
+    st.subheader("🎤 SiBuskerz Performance Mode")
+    
+    # Load lyrics list
+    song_data = worksheet.get_all_records()
+    song_titles = [f"{row['Title']} - {row['Artist']}" for row in song_data]
+
+    # Select songs for the session
+    selected_songs = st.multiselect("Select up to 10 songs to perform", options=song_titles, max_selections=10)
+
+    if selected_songs:
+        if st.button("🎬 Start Performance"):
+            st.session_state.performance_queue = selected_songs
+            st.session_state.current_song_index = 0
+
+    # Show queue
+    if "performance_queue" in st.session_state:
+        queue = st.session_state.performance_queue
+        index = st.session_state.get("current_song_index", 0)
+
+        if index < len(queue):
+            current_title_artist = queue[index]
+            title, artist = current_title_artist.split(" - ")
+
+            # Find lyrics for current song
+            for row in song_data:
+                if row["Title"] == title and row["Artist"] == artist:
+                    st.markdown(f"### 🎶 Now Performing: **{title}** by *{artist}*")
+                    st.text_area("Lyrics", value=row["Lyrics"], height=500, label_visibility="collapsed", disabled=True)
+
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("⏭️ Next Song"):
+                    st.session_state.current_song_index += 1
+            with col2:
+                if st.button("🛑 End Performance"):
+                    st.session_state.pop("performance_queue", None)
+                    st.session_state.pop("current_song_index", None)
+                    st.success("Performance ended.")
+
+        else:
+            st.success("✅ You've finished your performance!")
+            if st.button("Reset"):
+                st.session_state.pop("performance_queue", None)
+                st.session_state.pop("current_song_index", None)
+
