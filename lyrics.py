@@ -55,6 +55,7 @@ st.markdown("""
     <style>
     .big-lyrics textarea {
         font-size: 22px !important;
+        color:DodgerBlue;
         font-family: monospace;
         background-color: #f9f9f9;
         line-height: 1.7;
