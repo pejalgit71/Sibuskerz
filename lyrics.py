@@ -50,18 +50,28 @@ choice = st.sidebar.radio("Menu", menu)
 worksheet = get_worksheet()
 lyrics_df = get_lyrics_df(worksheet)
 
-# --- CSS for readable text ---
-# st.markdown("""
-#     <style>
-#     .big-lyrics textarea {
-#         font-size: 22px !important;
-#         color:DodgerBlue;
-#         font-family: monospace;
-#         background-color: #f9f9f9;
-#         line-height: 1.7;
-#     }
-#     </style>
-# """, unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .lyrics-box {
+        background-color: #fffbe6;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 24px;
+        font-family: 'Courier New', monospace;
+        color: black;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    @media screen and (max-width: 600px) {
+        .lyrics-box {
+            font-size: 20px;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics":
@@ -88,7 +98,12 @@ if choice == "📖 View Lyrics":
 
 
 
-        st.text_area("Lyrics", value=row['Lyrics'], height=600, key="view_lyrics", label_visibility="collapsed", disabled=True)
+        st.markdown(f"""
+        <div class="lyrics-box">
+            <pre>{row['Lyrics']}</pre>
+        </div>
+        """, unsafe_allow_html=True)
+
 
 # --- ADD NEW SONG ---
 elif choice == "➕ Add New Song":
