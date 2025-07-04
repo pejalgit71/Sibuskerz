@@ -108,18 +108,27 @@ if choice == "📖 View Lyrics":
 # --- ADD NEW SONG ---
 elif choice == "➕ Add New Song":
     st.subheader("Add a new song to your collection")
-    with st.form("add_song_form"):
-        new_title = st.text_input("Song Title")
-        new_artist = st.text_input("Artist Name")
-        new_lyrics = st.text_area("Paste Full Lyrics Here", height=300)
-        submitted = st.form_submit_button("Add Song")
 
-        if submitted:
-            if new_title and new_artist and new_lyrics:
-                add_new_song(worksheet, new_title, new_artist, new_lyrics)
-                st.success(f"✅ '{new_title}' by {new_artist}' has been added!")
-            else:
-                st.error("Please complete all fields.")
+    # Admin Password Prompt
+    password = st.text_input("Enter admin password to continue:", type="password")
+
+    if password == st.secrets["admin_password"]:
+        st.success("Access granted. You may now add a new song.")
+
+        with st.form("add_song_form"):
+            new_title = st.text_input("🎵 Song Title")
+            new_artist = st.text_input("🎤 Artist Name")
+            new_lyrics = st.text_area("📝 Paste Full Lyrics Here", height=300)
+            submitted = st.form_submit_button("Add Song")
+
+            if submitted:
+                if new_title and new_artist and new_lyrics:
+                    add_new_song(worksheet, new_title, new_artist, new_lyrics)
+                    st.success(f"✅ '{new_title}' by {new_artist} has been added!")
+                else:
+                    st.error("❌ Please complete all fields before submitting.")
+    elif password:
+        st.error("Incorrect password. Access denied.")
 
 # --- SEARCH ONLINE ---
 elif choice == "🌐 Search Lyrics Online":
