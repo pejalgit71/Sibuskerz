@@ -78,8 +78,8 @@ if choice == "📖 View Lyrics":
     textarea {
         font-size: 24px !important;
         font-family: 'Courier New', monospace !important;
-        color: white !important;
-        background-color: #1e1e1e !important;
+        
+        background-color: white !important;
         line-height: 1.6 !important;
         padding: 10px !important;
     }
