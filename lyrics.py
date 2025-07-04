@@ -39,7 +39,6 @@ def get_lyrics_df(songs_worksheet):
 def add_new_song(songs_worksheet, title, artist, lyrics):
     songs_worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
 
-@st.cache_data
 def load_members(members_sheet):
     df = pd.DataFrame(members_sheet.get_all_records())
     return df.to_dict(orient="records")    
