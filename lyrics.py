@@ -7,25 +7,42 @@ from google.oauth2.service_account import Credentials
 
 # --- CONFIG ---
 SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"  # Replace with your Google Sheet ID
-WORKSHEET_NAME = "lyrics"
+WORKSHEET_NAME1 = "lyrics"
+WORKSHEET_NAME2 = "members"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # --- GOOGLE SHEETS SETUP ---
 @st.cache_resource
 
-def get_worksheet():
+# def get_worksheet():
+#     creds_dict = dict(st.secrets["gcp_service_account"])
+#     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+#     client = gspread.authorize(creds)
+#     worksheet = client.open_by_key(SHEET_ID).worksheet(WORKSHEET_NAME)
+#     return worksheet
+
+def get_worksheets():
     creds_dict = dict(st.secrets["gcp_service_account"])
     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
-    worksheet = client.open_by_key(SHEET_ID).worksheet(WORKSHEET_NAME)
-    return worksheet
+    
+    sheet = client.open_by_key(SHEET_ID)
+    songs_worksheet = sheet.worksheet(WORKSHEET_NAME1)         # or your original WORKSHEET_NAME
+    members_worksheet = sheet.worksheet(WORKSHEET_NAME2)     # must match Google Sheet tab name exactly
 
-def get_lyrics_df(worksheet):
-    data = worksheet.get_all_records()
+    return songs_worksheet, members_worksheet
+    
+def get_lyrics_df(songs_worksheet):
+    data = songs_worksheet.get_all_records()
     return pd.DataFrame(data)
 
-def add_new_song(worksheet, title, artist, lyrics):
-    worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
+def add_new_song(songs_worksheet, title, artist, lyrics):
+    songs_worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
+
+@st.cache_data
+def load_members(members_sheet):
+    df = pd.DataFrame(members_sheet.get_all_records())
+    return df.to_dict(orient="records")    
 
 # --- LYRICS API SEARCH ---
 def search_lyrics_online(artist, title):
@@ -39,12 +56,14 @@ def search_lyrics_online(artist, title):
     except:
         return "Error fetching lyrics."
 
+
+
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
 st.title("🎶 SIBuskerz Lyrics Performance App©")
 
-menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online"]
+menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members"]
 choice = st.sidebar.radio("Menu", menu)
 
 worksheet = get_worksheet()
@@ -145,3 +164,17 @@ elif choice == "🌐 Search Lyrics Online":
             if "not found" not in lyrics.lower() and st.button("Save to Google Sheet"):
                 add_new_song(worksheet, title, artist, lyrics)
                 st.success(f"✅ '{title}' by {artist}' added to your lyrics list!")
+                
+elif choice == "👥 Meet The Members":
+    st.subheader("🎸 SiBuskerz Members")
+
+    for member in members:
+        with st.container():
+            cols = st.columns([1, 2])
+            with cols[0]:
+                st.image(member["photo"], use_column_width=True)
+            with cols[1]:
+                st.markdown(f"### {member['name']}")
+                st.markdown(f"**Role:** {member['role']}")
+                st.markdown(f"*{member['bio']}*")
+        st.markdown("---")
