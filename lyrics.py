@@ -44,7 +44,7 @@ st.set_page_config(page_title="🎤 Busker Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width =True)
 st.title("🎶 SIBuskerz Lyrics Performance App")
 
-menu = ["📖 View Lyrics", "➕ Add New Song", "🌐 Search Lyrics Online"]
+menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online"]
 choice = st.sidebar.radio("Menu", menu)
 
 worksheet = get_worksheet()
@@ -74,7 +74,7 @@ st.markdown("""
 
 
 # --- VIEW LYRICS ---
-if choice == "📖 View Lyrics":
+if choice == "📖 View Lyrics/Lihat Lirik":
     st.subheader("Select a song to view lyrics")
     song_titles = lyrics_df['Title'] + " - " + lyrics_df['Artist']
     selection = st.selectbox("Song List", song_titles)
@@ -106,19 +106,19 @@ if choice == "📖 View Lyrics":
 
 
 # --- ADD NEW SONG ---
-elif choice == "➕ Add New Song":
-    st.subheader("Add a new song to your collection")
+elif choice == "➕ Add New Song/Masukkan lirik Lagu baru":
+    st.subheader("Add a new song's lyric to your collection/Masukkan Lirik Lagu Baru")
 
     # Admin Password Prompt
-    password = st.text_input("Enter admin password to continue:", type="password")
+    password = st.text_input("Enter admin password to continue/Masukkan password admin:", type="password")
 
     if password == st.secrets["admin_password"]:
-        st.success("Access granted. You may now add a new song.")
+        st.success("Access granted. You may now add a new song's lyric/Anda dibenarkan masukkan lirik lagu baru")
 
         with st.form("add_song_form"):
-            new_title = st.text_input("🎵 Song Title")
-            new_artist = st.text_input("🎤 Artist Name")
-            new_lyrics = st.text_area("📝 Paste Full Lyrics Here", height=300)
+            new_title = st.text_input("🎵 Song Title/Tajuk Lagu")
+            new_artist = st.text_input("🎤 Artist Name/ Nama Artis")
+            new_lyrics = st.text_area("📝 Paste Full Lyrics Here/Masukkan Lirik disini", height=300)
             submitted = st.form_submit_button("Add Song")
 
             if submitted:
