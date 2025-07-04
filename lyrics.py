@@ -1,17 +1,18 @@
 import streamlit as st
 import pandas as pd
 import gspread
-from google.oauth2.service_account import Credentials
 import requests
 import json
+from google.oauth2.service_account import Credentials
 
-# --- Google Sheets Setup ---
-SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"
+# --- CONFIG ---
+SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"  # Replace with your Google Sheet ID
 WORKSHEET_NAME = "lyrics"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
+# --- GOOGLE SHEETS SETUP ---
 @st.cache_resource
-def get_gsheet_connection():
+def get_worksheet():
     credentials_dict = json.loads(st.secrets["GSHEET_CREDENTIALS"])
     creds = Credentials.from_service_account_info(credentials_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
@@ -23,9 +24,9 @@ def get_lyrics_df(worksheet):
     return pd.DataFrame(data)
 
 def add_new_song(worksheet, title, artist, lyrics):
-    worksheet.append_row([title, artist, lyrics])
+    worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
 
-# --- Online Lyrics API ---
+# --- LYRICS API SEARCH ---
 def search_lyrics_online(artist, title):
     try:
         url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
@@ -37,63 +38,68 @@ def search_lyrics_online(artist, title):
     except:
         return "Error fetching lyrics."
 
-# --- Main App ---
-st.set_page_config(page_title="🎤 SI Busker Lyrics App", layout="wide")
-st.title("🎶 SI Busker Lyrics Performance App")
-
-worksheet = get_gsheet_connection()
-lyrics_df = get_lyrics_df(worksheet)
+# --- STREAMLIT UI ---
+st.set_page_config(page_title="🎤 Busker Lyrics App", layout="wide")
+st.title("🎶 Busker Lyrics Performance App")
 
 menu = ["📖 View Lyrics", "➕ Add New Song", "🌐 Search Lyrics Online"]
 choice = st.sidebar.radio("Menu", menu)
 
+worksheet = get_worksheet()
+lyrics_df = get_lyrics_df(worksheet)
+
+# --- CSS for readable text ---
+st.markdown("""
+    <style>
+    .big-lyrics textarea {
+        font-size: 22px !important;
+        font-family: monospace;
+        background-color: #f9f9f9;
+        line-height: 1.7;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- VIEW LYRICS ---
 if choice == "📖 View Lyrics":
     st.subheader("Select a song to view lyrics")
     song_titles = lyrics_df['Title'] + " - " + lyrics_df['Artist']
     selection = st.selectbox("Song List", song_titles)
+
     if selection:
         title, artist = selection.split(" - ")
         row = lyrics_df[(lyrics_df['Title'] == title) & (lyrics_df['Artist'] == artist)].iloc[0]
         st.markdown(f"### 🎵 {row['Title']} by {row['Artist']}")
-        st.markdown("""
-        <style>
-        .big-lyrics textarea {
-            font-size: 22px !important;
-            font-family: monospace;
-            background-color: #f9f9f9;
-            line-height: 1.7;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-        st.text_area("Lyrics", value=row['Lyrics'], height=600, key="view_lyrics_big", label_visibility="collapsed", placeholder="Lyrics", help=None, disabled=True, args=(), kwargs={}, class_="big-lyrics")
+        st.text_area("Lyrics", value=row['Lyrics'], height=600, key="view_lyrics", label_visibility="collapsed", disabled=True, args=(), kwargs={}, class_="big-lyrics")
 
-
+# --- ADD NEW SONG ---
 elif choice == "➕ Add New Song":
-    st.subheader("Add a new song")
+    st.subheader("Add a new song to your collection")
     with st.form("add_song_form"):
         new_title = st.text_input("Song Title")
         new_artist = st.text_input("Artist Name")
-        new_lyrics = st.text_area("Paste Lyrics Here", height=300)
-        submitted = st.form_submit_button("Add to Sheet")
+        new_lyrics = st.text_area("Paste Full Lyrics Here", height=300)
+        submitted = st.form_submit_button("Add Song")
 
         if submitted:
             if new_title and new_artist and new_lyrics:
                 add_new_song(worksheet, new_title, new_artist, new_lyrics)
-                st.success(f"✅ '{new_title}' by {new_artist} added!")
+                st.success(f"✅ '{new_title}' by {new_artist}' has been added!")
             else:
-                st.error("Please fill in all fields.")
+                st.error("Please complete all fields.")
 
+# --- SEARCH ONLINE ---
 elif choice == "🌐 Search Lyrics Online":
-    st.subheader("Search lyrics from the web")
+    st.subheader("Search lyrics from the internet (Lyrics.ovh)")
     with st.form("search_online"):
-        artist = st.text_input("Artist")
+        artist = st.text_input("Artist Name")
         title = st.text_input("Song Title")
         search = st.form_submit_button("Search")
 
         if search and artist and title:
             lyrics = search_lyrics_online(artist, title)
             st.text_area("Lyrics Result", value=lyrics, height=400)
-            if "not found" not in lyrics.lower():
-                if st.button("Save to Google Sheet"):
-                    add_new_song(worksheet, title, artist, lyrics)
-                    st.success(f"✅ '{title}' by {artist} added to Google Sheet!")
+
+            if "not found" not in lyrics.lower() and st.button("Save to Google Sheet"):
+                add_new_song(worksheet, title, artist, lyrics)
+                st.success(f"✅ '{title}' by {artist}' added to your lyrics list!")
