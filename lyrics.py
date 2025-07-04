@@ -74,7 +74,6 @@ if choice == "📖 View Lyrics":
         row = lyrics_df[(lyrics_df['Title'] == title) & (lyrics_df['Artist'] == artist)].iloc[0]
         st.markdown(f"### 🎵 {row['Title']} by {row['Artist']}")
         st.markdown("""
-        st.markdown("""
             <style>
             textarea {
                 font-size: 24px !important;
