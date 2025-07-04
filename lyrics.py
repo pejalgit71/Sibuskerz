@@ -40,7 +40,7 @@ def add_new_song(songs_worksheet, title, artist, lyrics):
     songs_worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
 
 def load_members(members_worksheet):
-    df = pd.DataFrame(members_sheet.get_all_records())
+    df = pd.DataFrame(members_worksheet.get_all_records())
     return df.to_dict(orient="records")    
 
 # --- LYRICS API SEARCH ---
