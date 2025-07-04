@@ -65,7 +65,8 @@ st.title("🎶 SIBuskerz Lyrics Performance App©")
 menu = ["📖 View Lyrics/Lihat Lirik", "➕ Add New Song/Masukkan lirik Lagu baru", "🌐 Search Lyrics Online", "👥 Meet The Members"]
 choice = st.sidebar.radio("Menu", menu)
 
-worksheet = get_worksheet()
+worksheet, members_sheet = get_worksheets()
+# worksheet = get_worksheet()
 lyrics_df = get_lyrics_df(worksheet)
 
 st.markdown("""
