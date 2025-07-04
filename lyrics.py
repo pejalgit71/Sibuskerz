@@ -185,14 +185,14 @@ elif choice == "👥 Meet The Members":
         st.markdown("---")
         
 elif choice == "🎤 Performance Mode":
-    st.subheader("🎤 SiBuskerz Performance Mode")
+    st.subheader("🎤 SiBuskerz Performance Mode/Pilih Lagu-lagu untuk persembahan")
     
     # Load lyrics list
     song_data = worksheet.get_all_records()
     song_titles = [f"{row['Title']} - {row['Artist']}" for row in song_data]
 
     # Select songs for the session
-    selected_songs = st.multiselect("Select up to 10 songs to perform", options=song_titles, max_selections=10)
+    selected_songs = st.multiselect("Pilih maksima 30 lagu untuk nyanyi", options=song_titles, max_selections=30)
 
     if selected_songs:
         if st.button("🎬 Start Performance"):
