@@ -2,14 +2,13 @@ import streamlit as st
 import pandas as pd
 import gspread
 import requests
-import json
-import os
 from google.oauth2.service_account import Credentials
 
 # --- CONFIG ---
 SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"
 WORKSHEET_NAME1 = "lyrics"
 WORKSHEET_NAME2 = "members"
+WORKSHEET_NAME3 = "videos"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # --- GOOGLE SHEETS SETUP ---
@@ -19,19 +18,24 @@ def get_worksheets():
     creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SHEET_ID)
-    songs_worksheet = sheet.worksheet(WORKSHEET_NAME1)
-    members_worksheet = sheet.worksheet(WORKSHEET_NAME2)
-    return songs_worksheet, members_worksheet
+    songs_ws = sheet.worksheet(WORKSHEET_NAME1)
+    members_ws = sheet.worksheet(WORKSHEET_NAME2)
+    videos_ws = sheet.worksheet(WORKSHEET_NAME3)
+    return songs_ws, members_ws, videos_ws
 
-def get_lyrics_df(songs_worksheet):
-    data = songs_worksheet.get_all_records()
+def get_lyrics_df(ws):
+    data = ws.get_all_records()
     return pd.DataFrame(data)
 
-def add_new_song(songs_worksheet, title, artist, lyrics):
-    songs_worksheet.append_row([title.strip(), artist.strip(), lyrics.strip()])
+def add_new_song(ws, title, artist, lyrics):
+    ws.append_row([title.strip(), artist.strip(), lyrics.strip()])
 
-def load_members(members_worksheet):
-    df = pd.DataFrame(members_worksheet.get_all_records())
+def load_members(ws):
+    df = pd.DataFrame(ws.get_all_records())
+    return df.to_dict(orient="records")
+
+def load_videos(ws):
+    df = pd.DataFrame(ws.get_all_records())
     return df.to_dict(orient="records")
 
 def search_lyrics_online(artist, title):
@@ -56,12 +60,12 @@ menu = [
     "🌐 Search Lyrics Online",
     "👥 Meet The Members",
     "🎤 Performance Mode",
-    "🎞️ Videos Performances"
+    "🎞️ Past Performances"
 ]
 
 choice = st.sidebar.selectbox("Navigation", menu)
 
-worksheet, members_sheet = get_worksheets()
+worksheet, members_sheet, videos_sheet = get_worksheets()
 lyrics_df = get_lyrics_df(worksheet)
 
 # --- CUSTOM STYLES ---
@@ -107,7 +111,6 @@ if choice == "📖 View Lyrics/Lihat Lirik":
 # --- ADD NEW SONG ---
 elif choice == "➕ Add New Song/Masukkan lirik Lagu baru":
     st.subheader("Add a new song's lyric to your collection")
-
     password = st.text_input("Enter admin password to continue:", type="password")
 
     if password == st.secrets["admin_password"]:
@@ -204,63 +207,22 @@ elif choice == "🎤 Performance Mode":
                 st.session_state.pop("performance_queue", None)
                 st.session_state.pop("current_song_index", None)
 
-# --- PAST PERFORMANCES (VIDEO GALLERY) ---
+# --- VIDEO GALLERY ---
 elif choice == "🎞️ Past Performances":
-    st.subheader("🎬 SiBuskerz Past Performance Gallery")
+    st.subheader("🎬 SiBuskerz Video Performances")
 
-    VIDEO_DIR = "videos"
-    METADATA_FILE = "video_metadata.json"
-    os.makedirs(VIDEO_DIR, exist_ok=True)
-    if not os.path.exists(METADATA_FILE):
-        with open(METADATA_FILE, "w") as f:
-            json.dump([], f)
+    videos = load_videos(videos_sheet)
 
-    def load_metadata():
-        with open(METADATA_FILE, "r") as f:
-            return json.load(f)
-
-    def save_metadata(data):
-        with open(METADATA_FILE, "w") as f:
-            json.dump(data, f, indent=2)
-
-    def add_video(title, description, filename):
-        metadata = load_metadata()
-        metadata.append({"title": title, "description": description, "filename": filename})
-        save_metadata(metadata)
-
-    tab1, tab2 = st.tabs(["📤 Upload Video", "📺 Watch Performances"])
-
-    with tab1:
-        st.markdown("Upload your past performance video (MP4 only):")
-        uploaded_file = st.file_uploader("Choose video", type=["mp4"])
-        title = st.text_input("🎵 Video Title")
-        description = st.text_area("📝 Description")
-
-        if st.button("Upload Video"):
-            if uploaded_file and title:
-                filepath = os.path.join(VIDEO_DIR, uploaded_file.name)
-                with open(filepath, "wb") as f:
-                    f.write(uploaded_file.read())
-                add_video(title, description, uploaded_file.name)
-                st.success(f"✅ Uploaded '{title}' successfully!")
-            else:
-                st.error("❌ Please provide a video and title.")
-
-    with tab2:
-        st.markdown("### 📺 Gallery of Uploaded Performances")
-        metadata = load_metadata()
-
-        if metadata:
-            for i in range(0, len(metadata), 2):
-                cols = st.columns(2)
-                for j in range(2):
-                    if i + j < len(metadata):
-                        video = metadata[i + j]
-                        with cols[j]:
-                            st.markdown(f"**🎵 {video['title']}**")
-                            st.markdown(f"*{video['description']}*")
-                            video_path = os.path.join(VIDEO_DIR, video['filename'])
-                            st.video(video_path)
-                            st.markdown("---")
-        else:
-            st.info("No videos uploaded yet.")
+    if videos:
+        for i in range(0, len(videos), 2):
+            cols = st.columns(2)
+            for j in range(2):
+                if i + j < len(videos):
+                    vid = videos[i + j]
+                    with cols[j]:
+                        st.markdown(f"**🎵 {vid['Title']}**")
+                        st.markdown(f"*{vid['Description']}*")
+                        st.video(vid['VideoLink'])
+                        st.markdown("---")
+    else:
+        st.info("No video performances listed yet.")
