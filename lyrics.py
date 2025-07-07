@@ -56,7 +56,7 @@ menu = [
     "🌐 Search Lyrics Online",
     "👥 Meet The Members",
     "🎤 Performance Mode",
-    "🎞️ Past Performances"
+    "🎞️ Videos Performances"
 ]
 
 choice = st.sidebar.selectbox("Navigation", menu)
