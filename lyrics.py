@@ -211,7 +211,7 @@ elif choice == "🎤 Performance Mode":
 elif choice == "🎞️ Past Performances":
     st.subheader("🎬 SiBuskerz Video Performances")
 
-    videos = load_videos(videos_sheet)
+    videos = load_videos(videos_sheet)  # Your function that loads videos from the Google Sheet
 
     if videos:
         for i in range(0, len(videos), 2):
@@ -222,7 +222,23 @@ elif choice == "🎞️ Past Performances":
                     with cols[j]:
                         st.markdown(f"**🎵 {vid['Title']}**")
                         st.markdown(f"*{vid['Description']}*")
-                        st.video(vid['VideoLink'])
+
+                        video_link = vid['VideoLink']
+
+                        if "drive.google.com" in video_link:
+                            try:
+                                # Extract the video ID from Google Drive link
+                                video_id = video_link.split("/d/")[1].split("/")[0]
+                                embed_url = f"https://drive.google.com/file/d/{video_id}/preview"
+                                st.markdown(f"""
+                                    <iframe src="{embed_url}" width="100%" height="315" allow="autoplay" allowfullscreen></iframe>
+                                """, unsafe_allow_html=True)
+                            except:
+                                st.error("⚠️ Unable to display Google Drive video.")
+                        else:
+                            st.video(video_link)
+
                         st.markdown("---")
     else:
         st.info("No video performances listed yet.")
+
