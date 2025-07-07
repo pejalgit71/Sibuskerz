@@ -94,13 +94,18 @@ st.markdown("""
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics/Lihat Lirik":
     st.subheader("Select a song to view lyrics")
-    lyrics_df_sorted = lyrics_df.sort_values(by=["Title"])
-    song_titles = lyrics_df_sorted['Title'] + " - " + lyrics_df_sorted['Artist']
-    selection = st.selectbox("Song List", song_titles)
+
+    lyrics_df_sorted = lyrics_df.sort_values(by='Title')
+    full_titles = lyrics_df_sorted['Title'] + " - " + lyrics_df_sorted['Artist']
+
+    search_term = st.text_input("🔍 Search song title")
+    filtered_titles = [title for title in full_titles if search_term.lower() in title.lower()]
+
+    selection = st.selectbox("Song List", filtered_titles if search_term else full_titles)
 
     if selection:
         title, artist = selection.split(" - ")
-        row = lyrics_df[(lyrics_df['Title'] == title) & (lyrics_df['Artist'] == artist)].iloc[0]
+        row = lyrics_df_sorted[(lyrics_df_sorted['Title'] == title) & (lyrics_df_sorted['Artist'] == artist)].iloc[0]
         st.markdown(f"### 🎵 {row['Title']} by {row['Artist']}")
         st.markdown(f"""
         <div class="lyrics-box">
@@ -165,32 +170,35 @@ elif choice == "👥 Meet The Members":
 
 # --- PERFORMANCE MODE ---
 elif choice == "🎤 Performance Mode":
-    st.subheader("🎤 SiBuskerz Performance Mode")
+    st.subheader("🎤 SiBuskerz Performance Mode/Pilih Lagu-lagu untuk persembahan")
 
     song_data = worksheet.get_all_records()
-    sorted_song_titles = sorted([f"{row['Title']} - {row['Artist']}" for row in song_data])
+    song_data_sorted = sorted(song_data, key=lambda x: x['Title'].lower())
+    full_titles = [f"{row['Title']} - {row['Artist']}" for row in song_data_sorted]
 
-    selected_songs = st.multiselect("Select up to 30 songs", options=sorted_song_titles, max_selections=30)
+    search_term = st.text_input("🔍 Search and filter songs (Performance Mode)")
+    filtered_titles = [title for title in full_titles if search_term.lower() in title.lower()]
+
+    selected_songs = st.multiselect("🎶 Pilih maksima 30 lagu untuk nyanyi", options=filtered_titles if search_term else full_titles, max_selections=30)
 
     if selected_songs:
         if st.button("🎬 Start Performance"):
             st.session_state.performance_queue = selected_songs
             st.session_state.current_song_index = 0
 
+    # Show current song
     if "performance_queue" in st.session_state:
         queue = st.session_state.performance_queue
         index = st.session_state.get("current_song_index", 0)
 
         if index < len(queue):
-            title, artist = queue[index].split(" - ")
-            for row in song_data:
+            current_title_artist = queue[index]
+            title, artist = current_title_artist.split(" - ")
+
+            for row in song_data_sorted:
                 if row["Title"] == title and row["Artist"] == artist:
                     st.markdown(f"### 🎶 Now Performing: **{title}** by *{artist}*")
-                    st.markdown(f"""
-                    <div class="lyrics-box">
-                        <pre>{row['Lyrics']}</pre>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.text_area("Lyrics", value=row["Lyrics"], height=500, label_visibility="collapsed", disabled=True)
 
             col1, col2 = st.columns([1, 1])
             with col1:
@@ -201,6 +209,7 @@ elif choice == "🎤 Performance Mode":
                     st.session_state.pop("performance_queue", None)
                     st.session_state.pop("current_song_index", None)
                     st.success("Performance ended.")
+
         else:
             st.success("✅ You've finished your performance!")
             if st.button("Reset"):
