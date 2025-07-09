@@ -198,7 +198,14 @@ elif choice == "🎤 Performance Mode":
             for row in song_data_sorted:
                 if row["Title"] == title and row["Artist"] == artist:
                     st.markdown(f"### 🎶 Now Performing: **{title}** by *{artist}*")
-                    st.text_area("Lyrics", value=row["Lyrics"], height=500, label_visibility="collapsed", disabled=True)
+                   
+                    st.markdown(f"""
+                    <div class="lyrics-box">
+                        <pre>{row['Lyrics']}</pre>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    # st.text_area("Lyrics", value=row["Lyrics"], height=500, label_visibility="collapsed", disabled=True)
 
             col1, col2 = st.columns([1, 1])
             with col1:
