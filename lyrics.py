@@ -52,7 +52,24 @@ def search_lyrics_online(artist, title):
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
-st.sidebar.image("patrick-patrick-star.gif", use_container_width=True)
+st.sidebar.markdown(
+    """
+    <style>
+    .sidebar-gif {
+        max-width: 100%;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+gif_url = "patrick-patrick-star.gif"
+st.sidebar.markdown(f'<img src="{gif_url}" class="sidebar-gif">', unsafe_allow_html=True)
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
 menu = [
