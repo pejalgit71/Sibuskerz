@@ -307,13 +307,13 @@ elif choice == "📍 Performance Venues & Tokens":
         st.markdown(f"""
         ### 💰 Token Summary
         
-        - 👥 **Total Members**: {num_members}
-        - 🎁 **Total Token Collected**: RM {total_token:.2f}
-        - 💸 **Net Share per Member**: RM {net_per_person:.2f}
+        - 👥 **Total Members/Jumlah Member**: {num_members}
+        - 🎁 **Total Token Collected/Jumlah Sumbangan Penonton**: RM {total_token:.2f}
+        - 💸 **Net Share per Member/Setiap member akan terima**: RM {net_per_person:.2f}
         - 🎛️ **Audio Equipment Fee (same as member share)**: RM {net_per_person:.2f}
-        - 👥 **Total Distributed to Members**: RM {total_distributed:.2f}
+        - 👥 **Total Distributed to Members/Jumlah Dah Serahkan Pada Member**: RM {total_distributed:.2f}
         - 🎧 **Total Equipment Share**: RM {total_equipment:.2f}
-        - ❓ **Undistributed Token (if any)**: RM {total_undistributed:.2f}
+        - ❓ **Undistributed Token (if any)/Baki Belum Serah Pada Member**: RM {total_undistributed:.2f}
         """)
 
     else:
