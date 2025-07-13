@@ -69,6 +69,7 @@ st.sidebar.markdown(
 )
 
 st.sidebar.markdown(f'<img src="patrick-patrick-star.gif" class="sidebar-gif">', unsafe_allow_html=True)
+
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
 menu = [
@@ -85,31 +86,9 @@ choice = st.sidebar.selectbox("Navigation", menu)
 worksheet, members_sheet, videos_sheet = get_worksheets()
 lyrics_df = get_lyrics_df(worksheet)
 
-# --- CUSTOM STYLES ---
-st.markdown("""
-    <style>
-    .lyrics-box {
-        background-color: #fffbe6;
-        padding: 20px;
-        border-radius: 10px;
-        font-size: 24px;
-        font-family: 'Courier New', monospace;
-        color: black;
-        line-height: 1.6;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-
-    @media screen and (max-width: 600px) {
-        .lyrics-box {
-            font-size: 20px;
-        }
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics/Lihat Lirik":
+    st.sidebar.image("patrick-patrick-star.gif", use_container_width=True)
     st.subheader("Select a song to view lyrics")
 
     lyrics_df_sorted = lyrics_df.sort_values(by='Title')
