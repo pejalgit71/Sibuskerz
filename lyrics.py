@@ -40,7 +40,7 @@ def load_videos(ws):
     df = pd.DataFrame(ws.get_all_records())
     return df.to_dict(orient="records")
     
-def load_performances(ws)
+def load_performances(ws):
     df = pd.DataFrame(ws.get_all_records())
     return df.to_dict(orient="records")
 
