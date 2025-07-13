@@ -97,7 +97,7 @@ menu = [
 
 choice = st.sidebar.selectbox("Navigation", menu)
 
-worksheet, members_sheet, videos_sheet = get_worksheets()
+worksheet, members_sheet, videos_sheet, performances_sheet = get_worksheets()
 lyrics_df = get_lyrics_df(worksheet)
 
 # --- VIEW LYRICS ---
