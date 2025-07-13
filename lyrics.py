@@ -68,8 +68,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-gif_url = "patrick-patrick-star.gif"
-st.sidebar.markdown(f'<img src="{gif_url}" class="sidebar-gif">', unsafe_allow_html=True)
+st.sidebar.markdown(f'<img src="patrick-patrick-star.gif" class="sidebar-gif">', unsafe_allow_html=True)
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
 menu = [
