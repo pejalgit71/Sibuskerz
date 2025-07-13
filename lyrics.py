@@ -264,9 +264,6 @@ elif choice == "🎞️ Past Performances":
 elif choice == "📍 Performance Venues & Tokens":
     admin_pass = st.text_input("Enter admin password:", type="password")
     if admin_pass == st.secrets["admin_password"]:
-        # show form
-
-
         st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
     
         # Load worksheet
