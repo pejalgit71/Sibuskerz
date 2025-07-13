@@ -91,7 +91,6 @@ menu = [
     "🌐 Search Lyrics Online",
     "👥 Meet The Members",
     "🎤 Performance Mode",
-    "🎞️ Past Performances"
     "📍 Performance Venues & Tokens"
 ]
 
