@@ -91,7 +91,7 @@ translations = {
         "Performance updated successfully.": "",
         "No upcoming performance found. You can add a new one.": "",
         "Add New Performance": "",
-        "New performance added.": ""
+        "New performance added.": "",
         "Member": "",
         "TotalEarned": ""
     },
@@ -129,7 +129,7 @@ translations = {
         "Performance updated successfully.": "Persembahan berjaya dikemas kini.",
         "No upcoming performance found. You can add a new one.": "Tiada persembahan akan datang ditemui. Anda boleh tambah baru.",
         "Add New Performance": "Tambah Persembahan Baru",
-        "New performance added.": "Persembahan baru telah ditambah."
+        "New performance added.": "Persembahan baru telah ditambah.",
         "Member": "Ahli",
         "TotalEarned": "Jumlah Diperoleh"
     }
