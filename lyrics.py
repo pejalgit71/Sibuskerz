@@ -487,7 +487,8 @@ elif choice == "📍 Performance Venues & Tokens":
             perf_date = st.date_input("📅 Performance Date", pd.to_datetime(first_upcoming['Date']))
             venue = st.text_input("📍 Venue Name", first_upcoming['Venue'])
             status = st.selectbox("Status", ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
-            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=float(first_upcoming.get('TotalToken', 0)), step=1.0)
+            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=float(first_upcoming['TotalToken']) if first_upcoming['TotalToken'] else 0.0
+), step=1.0) 
             notes = st.text_area("📝 Notes (optional)", first_upcoming.get('Notes', ''))
             member_names = df_members['Name'].tolist()
             prev_performers = [p.strip() for p in str(first_upcoming.get('Performers', '')).split(',') if p.strip()]
