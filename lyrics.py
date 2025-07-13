@@ -281,11 +281,17 @@ elif choice == "📍 Performance Venues & Tokens":
         st.dataframe(df_perf)
 
         # Compute token stats
-        done_perf = df_perf[df_perf['Status'].str.lower() == 'done']
-        total_token = done_perf['TotalToken'].fillna(0).astype(float).sum()
-        total_distributed = done_perf['SharedPerPerson'].fillna(0).astype(float).sum() * num_members
-        total_equipment = done_perf['EquipmentShare'].fillna(0).astype(float).sum()
+        # Convert columns to numeric safely
+        done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
+        done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
+        done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
+        
+        # Calculate totals
+        total_token = done_perf['TotalToken'].sum()
+        total_distributed = done_perf['SharedPerPerson'].sum() * num_members
+        total_equipment = done_perf['EquipmentShare'].sum()
         total_undistributed = total_token - (total_distributed + total_equipment)
+
 
         st.markdown(f"""
         ### 💰 Token Summary
