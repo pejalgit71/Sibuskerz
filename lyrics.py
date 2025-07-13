@@ -267,59 +267,157 @@ elif choice == "🎞️ Past Performances":
     else:
         st.info("No video performances listed yet.")
         
+# elif choice == "📍 Performance Venues & Tokens":
+#     st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
+
+#     # Load data from sheet
+#     df_perf = pd.DataFrame(performances_sheet.get_all_records())
+#     df_members = pd.DataFrame(members_sheet.get_all_records())
+#     num_members = len(df_members)
+#     total_shares = num_members + 1  # 1 share for equipment
+
+#     if not df_perf.empty:
+#         st.markdown("### 🎤 Upcoming & Past Performances")
+#         st.dataframe(df_perf)
+
+#         # Compute token stats
+#         # Convert columns to numeric safely
+#         # Filter performances marked as 'Done'
+#         # Filter performances marked as 'Done'
+#         done_perf = df_perf[df_perf["Status"] == "Done"].copy()
+        
+#         # Convert to numeric
+#         done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
+#         done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
+#         done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
+
+       
+      
+#         # Count members
+#         num_members = len(df_members)
+#         total_shares = num_members + 1  # 1 share for audio equipment
+        
+#         # # Totals
+#         total_token = done_perf['TotalToken'].sum()
+#         total_distributed = done_perf['SharedPerPerson'].sum() * num_members
+#         total_equipment = done_perf['EquipmentShare'].sum()
+#         total_undistributed = total_token - (total_distributed + total_equipment)
+        
+       
+#         # Net share per person
+#         net_per_person = round(total_token / total_shares, 2) if total_token > 0 else 0.0
+        
+#         st.markdown(f"""
+#         ### 💰 Token Summary
+        
+#         - 👥 **Total Members/Jumlah Member**: {num_members}
+#         - 🎁 **Total Token Collected/Jumlah Sumbangan Penonton**: RM {total_token:.2f}
+#         - 💸 **Net Share per Member/Setiap member akan terima**: RM {net_per_person:.2f}
+#         - 🎛️ **Audio Equipment Fee (same as member share)**: RM {net_per_person:.2f}
+#         - 👥 **Total Distributed to Members/Jumlah Dah Serahkan Pada Member**: RM {total_distributed:.2f}
+#         - 🎧 **Total Equipment Share**: RM {total_equipment:.2f}
+#         - ❓ **Undistributed Token (if any)/Baki Belum Serah Pada Member**: RM {total_undistributed:.2f}
+#         """)
+
+#     else:
+#         st.info("No performance records yet.")
+
+#     # Form to add new performance
+#     st.markdown("### ➕ Add or Update Performance Info")
+#     with st.form("add_perf_form"):
+#         perf_date = st.date_input("📅 Performance Date")
+#         venue = st.text_input("📍 Venue Name")
+#         status = st.selectbox("Status", ["Upcoming", "Done"])
+#         token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
+#         notes = st.text_area("📝 Notes (optional)")
+    
+#         # Load member names for selection
+#         member_names = df_members['Name'].tolist()
+#         attendees = st.multiselect("🎤 Who performed at this event?", member_names)
+    
+#         submitted = st.form_submit_button("Save Performance Info")
+    
+#         if submitted:
+#             if status == "Done":
+#                 if not attendees:
+#                     st.warning("⚠️ You must select at least one performer before marking as Done.")
+#                     st.stop()
+    
+#                 num_performers = len(attendees)
+#                 total_shares = num_performers + 1  # +1 for equipment
+    
+#                 shared = round(token / total_shares, 2)
+#                 equipment = round(shared, 2)
+#             else:
+#                 shared = ""
+#                 equipment = ""
+    
+#             # Save performance data
+#             performances_sheet.append_row([
+#                 str(perf_date),
+#                 venue,
+#                 status,
+#                 token if token else "",
+#                 shared,
+#                 equipment,
+#                 notes,
+#                 ", ".join(attendees)  # save performers as string
+#             ])
+#             st.success("✅ Performance info saved! Please refresh to view updated data.")
 elif choice == "📍 Performance Venues & Tokens":
     st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
 
     # Load data from sheet
     df_perf = pd.DataFrame(performances_sheet.get_all_records())
     df_members = pd.DataFrame(members_sheet.get_all_records())
-    num_members = len(df_members)
-    total_shares = num_members + 1  # 1 share for equipment
 
     if not df_perf.empty:
         st.markdown("### 🎤 Upcoming & Past Performances")
         st.dataframe(df_perf)
 
-        # Compute token stats
-        # Convert columns to numeric safely
-        # Filter performances marked as 'Done'
         # Filter performances marked as 'Done'
         done_perf = df_perf[df_perf["Status"] == "Done"].copy()
-        
-        # Convert to numeric
+
+        # Clean numeric columns
         done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
         done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
         done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
-        
-        # Count members
-        num_members = len(df_members)
-        total_shares = num_members + 1  # 1 share for audio equipment
-        
-        # Totals
+
+        # Prepare performer info
+        done_perf["Performers"] = done_perf["Performers"].fillna("")
+        done_perf["NumPerformers"] = done_perf["Performers"].apply(lambda x: len([p.strip() for p in x.split(",") if p.strip()]))
+        done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
+
+        # Recalculate shares
+        done_perf["SharedPerPerson"] = done_perf.apply(
+            lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
+        )
+        done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
+
+        # Summary Totals
         total_token = done_perf['TotalToken'].sum()
-        total_distributed = done_perf['SharedPerPerson'].sum() * num_members
+        total_distributed = (done_perf['SharedPerPerson'] * done_perf['NumPerformers']).sum()
         total_equipment = done_perf['EquipmentShare'].sum()
         total_undistributed = total_token - (total_distributed + total_equipment)
-        
-        # Net share per person
-        net_per_person = round(total_token / total_shares, 2) if total_token > 0 else 0.0
-        
+
+        net_per_person = round(total_token / (done_perf['NumPerformers'].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
+
         st.markdown(f"""
         ### 💰 Token Summary
-        
-        - 👥 **Total Members/Jumlah Member**: {num_members}
-        - 🎁 **Total Token Collected/Jumlah Sumbangan Penonton**: RM {total_token:.2f}
-        - 💸 **Net Share per Member/Setiap member akan terima**: RM {net_per_person:.2f}
-        - 🎛️ **Audio Equipment Fee (same as member share)**: RM {net_per_person:.2f}
-        - 👥 **Total Distributed to Members/Jumlah Dah Serahkan Pada Member**: RM {total_distributed:.2f}
-        - 🎧 **Total Equipment Share**: RM {total_equipment:.2f}
-        - ❓ **Undistributed Token (if any)/Baki Belum Serah Pada Member**: RM {total_undistributed:.2f}
-        """)
 
+        - 🧑‍🤝‍🧑 **Total Members in Group**: {len(df_members)}
+        - 🎭 **Total Unique Performers (Actual)**: {done_perf['NumPerformers'].sum()}
+        - 🎁 **Total Token Collected**: RM {total_token:.2f}
+        - 💸 **Net Share per Performer**: RM {net_per_person:.2f}
+        - 🎧 **Audio Equipment Fee (equal to member share)**: RM {net_per_person:.2f}
+        - 👥 **Total Given to Performers**: RM {total_distributed:.2f}
+        - 🎛️ **Total Equipment Share**: RM {total_equipment:.2f}
+        - ❓ **Undistributed Token (Balance)**: RM {total_undistributed:.2f}
+        """)
     else:
         st.info("No performance records yet.")
 
-    # Form to add new performance
+    # --- Add Performance Form ---
     st.markdown("### ➕ Add or Update Performance Info")
     with st.form("add_perf_form"):
         perf_date = st.date_input("📅 Performance Date")
@@ -327,29 +425,27 @@ elif choice == "📍 Performance Venues & Tokens":
         status = st.selectbox("Status", ["Upcoming", "Done"])
         token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
         notes = st.text_area("📝 Notes (optional)")
-    
-        # Load member names for selection
+
+        # Load member names
         member_names = df_members['Name'].tolist()
         attendees = st.multiselect("🎤 Who performed at this event?", member_names)
-    
+
         submitted = st.form_submit_button("Save Performance Info")
-    
+
         if submitted:
             if status == "Done":
                 if not attendees:
-                    st.warning("⚠️ You must select at least one performer before marking as Done.")
+                    st.warning("⚠️ Please select at least one performer before marking as Done.")
                     st.stop()
-    
                 num_performers = len(attendees)
-                total_shares = num_performers + 1  # +1 for equipment
-    
+                total_shares = num_performers + 1  # include audio equipment
                 shared = round(token / total_shares, 2)
-                equipment = round(shared, 2)
+                equipment = shared
             else:
                 shared = ""
                 equipment = ""
-    
-            # Save performance data
+
+            # Save performance data (make sure Google Sheet has a column 'Performers')
             performances_sheet.append_row([
                 str(perf_date),
                 venue,
@@ -358,6 +454,6 @@ elif choice == "📍 Performance Venues & Tokens":
                 shared,
                 equipment,
                 notes,
-                ", ".join(attendees)  # save performers as string
+                ", ".join(attendees)  # save performers as comma string
             ])
             st.success("✅ Performance info saved! Please refresh to view updated data.")
