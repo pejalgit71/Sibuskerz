@@ -262,55 +262,55 @@ elif choice == "🎞️ Past Performances":
         st.info("No video performances listed yet.")
         
 elif choice == "📍 Performance Venues & Tokens":
-    if admin_pass == st.secrets["admin_password"]:
-        st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
-    
-        # Load worksheet
-        client = gspread.authorize(Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), scopes=SCOPES))
-        sheet = client.open_by_key(SHEET_ID)
-        performance_sheet = sheet.worksheet("performances")
-    
-        # Get members count for fair sharing
-        members_df = pd.DataFrame(members_sheet.get_all_records())
-        num_members = len(members_df)
-        total_shares = num_members + 1  # 1 share for equipment
-    
-        df_perf = pd.DataFrame(performance_sheet.get_all_records())
-    
-        st.markdown("### 🎤 Upcoming & Past Performances")
-        st.dataframe(df_perf)
-    
-        # Total Token Stats
-        done_perf = df_perf[df_perf['Status'].str.lower() == 'done']
-        total_token = done_perf['TotalToken'].fillna(0).astype(float).sum()
-        total_distributed = done_perf['SharedPerPerson'].fillna(0).astype(float).sum() * num_members
-        total_equipment = done_perf['EquipmentShare'].fillna(0).astype(float).sum()
-        total_undistributed = total_token - (total_distributed + total_equipment)
-    
-        st.markdown(f"""
-        ### 💰 Token Summary
-        - 🎁 Total Token Collected: **RM {total_token:.2f}**
-        - 👥 Per Member Shared: **RM {total_distributed:.2f}** (Each member: RM {total_distributed/num_members if num_members else 0:.2f})
-        - 🎛️ Equipment Share: **RM {total_equipment:.2f}**
-        - ❓ Undistributed Token: **RM {total_undistributed:.2f}**
-        """)
-    
-        # Add new performance
-        st.markdown("### ➕ Add or Update Performance Info")
-        with st.form("add_perf"):
-            date = st.date_input("🎫 Performance Date")
-            venue = st.text_input("📍 Venue Name")
-            status = st.selectbox("Status", ["Upcoming", "Done"])
-            token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
-            notes = st.text_area("📝 Notes (optional)")
-            submitted = st.form_submit_button("Save Performance Info")
-    
-            if submitted:
-                shared = round(token / total_shares, 2) if token > 0 else ""
-                equip = round(shared, 2) if shared else ""
-                performance_sheet.append_row([
-                    str(date), venue, status, token if token else "", 
-                    shared, equip, notes
-                ])
-                st.success("✅ Performance info saved. Please refresh to view updated list.")
+   
+    st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
+
+    # Load worksheet
+    client = gspread.authorize(Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), scopes=SCOPES))
+    sheet = client.open_by_key(SHEET_ID)
+    performance_sheet = sheet.worksheet("performances")
+
+    # Get members count for fair sharing
+    members_df = pd.DataFrame(members_sheet.get_all_records())
+    num_members = len(members_df)
+    total_shares = num_members + 1  # 1 share for equipment
+
+    df_perf = pd.DataFrame(performance_sheet.get_all_records())
+
+    st.markdown("### 🎤 Upcoming & Past Performances")
+    st.dataframe(df_perf)
+
+    # Total Token Stats
+    done_perf = df_perf[df_perf['Status'].str.lower() == 'done']
+    total_token = done_perf['TotalToken'].fillna(0).astype(float).sum()
+    total_distributed = done_perf['SharedPerPerson'].fillna(0).astype(float).sum() * num_members
+    total_equipment = done_perf['EquipmentShare'].fillna(0).astype(float).sum()
+    total_undistributed = total_token - (total_distributed + total_equipment)
+
+    st.markdown(f"""
+    ### 💰 Token Summary
+    - 🎁 Total Token Collected: **RM {total_token:.2f}**
+    - 👥 Per Member Shared: **RM {total_distributed:.2f}** (Each member: RM {total_distributed/num_members if num_members else 0:.2f})
+    - 🎛️ Equipment Share: **RM {total_equipment:.2f}**
+    - ❓ Undistributed Token: **RM {total_undistributed:.2f}**
+    """)
+
+    # Add new performance
+    st.markdown("### ➕ Add or Update Performance Info")
+    with st.form("add_perf"):
+        date = st.date_input("🎫 Performance Date")
+        venue = st.text_input("📍 Venue Name")
+        status = st.selectbox("Status", ["Upcoming", "Done"])
+        token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
+        notes = st.text_area("📝 Notes (optional)")
+        submitted = st.form_submit_button("Save Performance Info")
+
+        if submitted:
+            shared = round(token / total_shares, 2) if token > 0 else ""
+            equip = round(shared, 2) if shared else ""
+            performance_sheet.append_row([
+                str(date), venue, status, token if token else "", 
+                shared, equip, notes
+            ])
+            st.success("✅ Performance info saved. Please refresh to view updated list.")
 
