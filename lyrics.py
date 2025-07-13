@@ -49,6 +49,29 @@ def search_lyrics_online(artist, title):
     except:
         return "Error fetching lyrics."
 
+
+# --- CUSTOM STYLES ---
+st.markdown("""
+    <style>
+    .lyrics-box {
+        background-color: #fffbe6;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 24px;
+        font-family: 'Courier New', monospace;
+        color: black;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    @media screen and (max-width: 600px) {
+        .lyrics-box {
+            font-size: 20px;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
