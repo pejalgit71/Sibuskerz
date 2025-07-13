@@ -262,7 +262,6 @@ elif choice == "🎞️ Past Performances":
         st.info("No video performances listed yet.")
         
 elif choice == "📍 Performance Venues & Tokens":
-    admin_pass = st.text_input("Enter admin password:", type="password")
     if admin_pass == st.secrets["admin_password"]:
         st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
     
@@ -315,5 +314,3 @@ elif choice == "📍 Performance Venues & Tokens":
                 ])
                 st.success("✅ Performance info saved. Please refresh to view updated list.")
 
-    else:
-        st.warning("🔒 Admin access required.")
