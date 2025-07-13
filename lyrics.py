@@ -414,6 +414,35 @@ elif choice == "📍 Performance Venues & Tokens":
         - 🎛️ **Total Equipment Share**: RM {total_equipment:.2f}
         - ❓ **Undistributed Token (Balance)**: RM {total_undistributed:.2f}
         """)
+        st.markdown("### 📊 Member Earnings Summary")
+
+        # Create a mapping of earnings per member
+        member_earnings = {}
+
+        for _, row in done_perf.iterrows():
+            performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
+            share = row["SharedPerPerson"]
+
+            for performer in performers:
+                if performer not in member_earnings:
+                    member_earnings[performer] = 0.0
+                member_earnings[performer] += share
+
+        # Convert to DataFrame
+        summary_df = pd.DataFrame(list(member_earnings.items()), columns=["Member", "TotalEarned"])
+        summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
+
+        # Sort highest to lowest
+        summary_df = summary_df.sort_values(by="TotalEarned", ascending=False).reset_index(drop=True)
+
+        st.dataframe(summary_df)
+
+        # Optional: Member selection to view their earnings only
+        st.markdown("### 🔍 Check My Total Earnings")
+        selected_member = st.selectbox("Select Your Name", summary_df["Member"].tolist())
+        personal_earning = summary_df[summary_df["Member"] == selected_member]["TotalEarned"].values[0]
+        st.success(f"💰 {selected_member} has earned: **RM {personal_earning:.2f}** so far!")
+
     else:
         st.info("No performance records yet.")
 
