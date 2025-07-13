@@ -53,8 +53,6 @@ def search_lyrics_online(artist, title):
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
 
-
-
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
 menu = [
@@ -73,7 +71,7 @@ lyrics_df = get_lyrics_df(worksheet)
 
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics/Lihat Lirik":
-    st.image("patrick-patrick-star.gif",use_container_width=False)
+   
     st.subheader("Select a song to view lyrics")
 
     lyrics_df_sorted = lyrics_df.sort_values(by='Title')
