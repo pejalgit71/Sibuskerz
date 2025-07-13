@@ -269,42 +269,39 @@ elif choice == "🎞️ Past Performances":
         st.info("No video performances listed yet.")
         
 elif choice == "📍 Performance Venues & Tokens":
-   
     st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
 
-    # Load worksheet
-    performance_sheet = load_performances(performances_sheet)
-
-    # Get members count for fair sharing
-
-    members_df = load_members(members_sheet)
-    num_members = len(members_df)
+    # Load data from sheet
+    df_perf = pd.DataFrame(performances_sheet.get_all_records())
+    df_members = pd.DataFrame(members_sheet.get_all_records())
+    num_members = len(df_members)
     total_shares = num_members + 1  # 1 share for equipment
 
-    df_perf = pd.DataFrame(performance_sheet.get_all_records())
+    if not df_perf.empty:
+        st.markdown("### 🎤 Upcoming & Past Performances")
+        st.dataframe(df_perf)
 
-    st.markdown("### 🎤 Upcoming & Past Performances")
-    st.dataframe(df_perf)
+        # Compute token stats
+        done_perf = df_perf[df_perf['Status'].str.lower() == 'done']
+        total_token = done_perf['TotalToken'].fillna(0).astype(float).sum()
+        total_distributed = done_perf['SharedPerPerson'].fillna(0).astype(float).sum() * num_members
+        total_equipment = done_perf['EquipmentShare'].fillna(0).astype(float).sum()
+        total_undistributed = total_token - (total_distributed + total_equipment)
 
-    # Total Token Stats
-    done_perf = df_perf[df_perf['Status'].str.lower() == 'done']
-    total_token = done_perf['TotalToken'].fillna(0).astype(float).sum()
-    total_distributed = done_perf['SharedPerPerson'].fillna(0).astype(float).sum() * num_members
-    total_equipment = done_perf['EquipmentShare'].fillna(0).astype(float).sum()
-    total_undistributed = total_token - (total_distributed + total_equipment)
+        st.markdown(f"""
+        ### 💰 Token Summary
+        - 🎁 **Total Token Collected**: RM {total_token:.2f}
+        - 👥 **Total Shared to Members**: RM {total_distributed:.2f}
+        - 🎛️ **Equipment Share**: RM {total_equipment:.2f}
+        - ❓ **Undistributed Token**: RM {total_undistributed:.2f}
+        """)
+    else:
+        st.info("No performance records yet.")
 
-    st.markdown(f"""
-    ### 💰 Token Summary
-    - 🎁 Total Token Collected: **RM {total_token:.2f}**
-    - 👥 Per Member Shared: **RM {total_distributed:.2f}** (Each member: RM {total_distributed/num_members if num_members else 0:.2f})
-    - 🎛️ Equipment Share: **RM {total_equipment:.2f}**
-    - ❓ Undistributed Token: **RM {total_undistributed:.2f}**
-    """)
-
-    # Add new performance
+    # Form to add new performance
     st.markdown("### ➕ Add or Update Performance Info")
-    with st.form("add_perf"):
-        date = st.date_input("🎫 Performance Date")
+    with st.form("add_perf_form"):
+        perf_date = st.date_input("📅 Performance Date")
         venue = st.text_input("📍 Venue Name")
         status = st.selectbox("Status", ["Upcoming", "Done"])
         token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
@@ -312,11 +309,22 @@ elif choice == "📍 Performance Venues & Tokens":
         submitted = st.form_submit_button("Save Performance Info")
 
         if submitted:
-            shared = round(token / total_shares, 2) if token > 0 else ""
-            equip = round(shared, 2) if shared else ""
-            performance_sheet.append_row([
-                str(date), venue, status, token if token else "", 
-                shared, equip, notes
-            ])
-            st.success("✅ Performance info saved. Please refresh to view updated list.")
+            # Calculate shares if Done and token is given
+            if status == "Done" and token > 0:
+                shared = round(token / total_shares, 2)
+                equipment = round(shared, 2)
+            else:
+                shared = ""
+                equipment = ""
 
+            # Append to sheet
+            performances_sheet.append_row([
+                str(perf_date),
+                venue,
+                status,
+                token if token else "",
+                shared,
+                equipment,
+                notes
+            ])
+            st.success("✅ Performance info saved! Please refresh to view updated data.")
