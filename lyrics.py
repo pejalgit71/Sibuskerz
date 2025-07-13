@@ -283,27 +283,39 @@ elif choice == "📍 Performance Venues & Tokens":
         # Compute token stats
         # Convert columns to numeric safely
         # Filter performances marked as 'Done'
+        # Filter performances marked as 'Done'
         done_perf = df_perf[df_perf["Status"] == "Done"].copy()
         
-        # Convert columns to numeric safely
+        # Convert to numeric
         done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
         done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
         done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
         
-        # Calculate totals
+        # Count members
+        num_members = len(df_members)
+        total_shares = num_members + 1  # 1 share for audio equipment
+        
+        # Totals
         total_token = done_perf['TotalToken'].sum()
         total_distributed = done_perf['SharedPerPerson'].sum() * num_members
         total_equipment = done_perf['EquipmentShare'].sum()
         total_undistributed = total_token - (total_distributed + total_equipment)
-
-
+        
+        # Net share per person
+        net_per_person = round(total_token / total_shares, 2) if total_token > 0 else 0.0
+        
         st.markdown(f"""
         ### 💰 Token Summary
+        
+        - 👥 **Total Members**: {num_members}
         - 🎁 **Total Token Collected**: RM {total_token:.2f}
-        - 👥 **Total Shared to Members**: RM {total_distributed:.2f}
-        - 🎛️ **Equipment Share**: RM {total_equipment:.2f}
-        - ❓ **Undistributed Token**: RM {total_undistributed:.2f}
+        - 💸 **Net Share per Member**: RM {net_per_person:.2f}
+        - 🎛️ **Audio Equipment Fee (same as member share)**: RM {net_per_person:.2f}
+        - 👥 **Total Distributed to Members**: RM {total_distributed:.2f}
+        - 🎧 **Total Equipment Share**: RM {total_equipment:.2f}
+        - ❓ **Undistributed Token (if any)**: RM {total_undistributed:.2f}
         """)
+
     else:
         st.info("No performance records yet.")
 
