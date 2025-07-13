@@ -92,6 +92,8 @@ translations = {
         "No upcoming performance found. You can add a new one.": "",
         "Add New Performance": "",
         "New performance added.": ""
+        "Member": "",
+        "TotalEarned": ""
     },
     "ms": {
         "SiBuskerz Performance Schedule & Appreciation Tokens": "Jadual Persembahan SiBuskerz & Token Penghargaan",
@@ -128,6 +130,8 @@ translations = {
         "No upcoming performance found. You can add a new one.": "Tiada persembahan akan datang ditemui. Anda boleh tambah baru.",
         "Add New Performance": "Tambah Persembahan Baru",
         "New performance added.": "Persembahan baru telah ditambah."
+        "Member": "Ahli",
+        "TotalEarned": "Jumlah Diperoleh"
     }
 }
 
