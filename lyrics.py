@@ -475,40 +475,102 @@ elif choice == "📍 Performance Venues & Tokens":
 
     # --- ADD OR UPDATE PERFORMANCE FORM ---
     st.markdown("### ➕ Add or Update Performance Info")
-    with st.form("add_perf_form", clear_on_submit=True):
-        perf_date = st.date_input("📅 Performance Date")
-        venue = st.text_input("📍 Venue Name")
-        status = st.selectbox("Status", ["Upcoming", "Done"])
-        token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=0.0, step=1.0)
-        notes = st.text_area("📝 Notes (optional)")
-        member_names = df_members['Name'].tolist()
-        attendees = st.multiselect("🎤 Who performed at this event?", member_names)
 
-        submitted = st.form_submit_button("Save Performance Info")
+    # Check for first occurrence of "Upcoming"
+    upcoming_perf = df_perf[df_perf['Status'] == 'Upcoming']
+    
+    if not upcoming_perf.empty:
+        first_upcoming = upcoming_perf.iloc[0]
+        st.info("📅 An upcoming performance already exists. You can update or delete it.")
 
-        if submitted:
-            if status == "Done" and not attendees:
-                st.warning("⚠️ Please select at least one performer before marking as Done.")
+        with st.form("update_perf_form", clear_on_submit=False):
+            perf_date = st.date_input("📅 Performance Date", pd.to_datetime(first_upcoming['Date']))
+            venue = st.text_input("📍 Venue Name", first_upcoming['Venue'])
+            status = st.selectbox("Status", ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
+            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=float(first_upcoming.get('TotalToken', 0)), step=1.0)
+            notes = st.text_area("📝 Notes (optional)", first_upcoming.get('Notes', ''))
+            member_names = df_members['Name'].tolist()
+            prev_performers = [p.strip() for p in str(first_upcoming.get('Performers', '')).split(',') if p.strip()]
+            attendees = st.multiselect("🎤 Who performed at this event?", member_names, default=prev_performers)
+
+            col1, col2 = st.columns(2)
+            update_btn = col1.form_submit_button("✅ Update to Done or Edit")
+            cancel_btn = col2.form_submit_button("❌ Cancel/Delete This Performance")
+
+            row_index = df_perf.index[df_perf['Date'] == first_upcoming['Date']].tolist()
+            if row_index:
+                sheet_row = row_index[0] + 2  # +2 to match Google Sheet row (headers + 1-based index)
+            else:
+                st.error("❗ Unable to locate the row in sheet.")
                 st.stop()
 
-            if status == "Done":
-                num_performers = len(attendees)
-                total_shares = num_performers + 1
-                shared = round(token / total_shares, 2)
-                equipment = shared
-            else:
-                shared = ""
-                equipment = ""
+            if cancel_btn:
+                performances_sheet.delete_rows(sheet_row)
+                st.success("❌ Performance has been cancelled and deleted.")
+                st.rerun()
 
-            # Append to Google Sheet (ensure sheet has correct headers)
-            performances_sheet.append_row([
-                str(perf_date),
-                venue,
-                status,
-                token if token else "",
-                shared,
-                equipment,
-                notes,
-                ", ".join(attendees)
-            ])
-            st.success("✅ Performance info saved! Please refresh to see the updated table.")
+            if update_btn:
+                if status == "Done" and not attendees:
+                    st.warning("⚠️ Please select at least one performer before marking as Done.")
+                    st.stop()
+
+                if status == "Done":
+                    num_performers = len(attendees)
+                    total_shares = num_performers + 1
+                    shared = round(token / total_shares, 2)
+                    equipment = shared
+                else:
+                    shared = ""
+                    equipment = ""
+
+                performances_sheet.update(f"A{sheet_row}:H{sheet_row}", [[
+                    str(perf_date),
+                    venue,
+                    status,
+                    token if token else "",
+                    shared,
+                    equipment,
+                    notes,
+                    ", ".join(attendees)
+                ]])
+                st.success("✅ Performance updated successfully.")
+                st.rerun()
+    else:
+        st.info("🆕 No upcoming performance found. You can add a new one.")
+        with st.form("add_perf_form", clear_on_submit=True):
+            perf_date = st.date_input("📅 Performance Date")
+            venue = st.text_input("📍 Venue Name")
+            status = st.selectbox("Status", ["Upcoming", "Done"])
+            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=0.0, step=1.0)
+            notes = st.text_area("📝 Notes (optional)")
+            member_names = df_members['Name'].tolist()
+            attendees = st.multiselect("🎤 Who performed at this event?", member_names)
+
+            submitted = st.form_submit_button("➕ Add New Performance")
+
+            if submitted:
+                if status == "Done" and not attendees:
+                    st.warning("⚠️ Please select at least one performer before marking as Done.")
+                    st.stop()
+
+                if status == "Done":
+                    num_performers = len(attendees)
+                    total_shares = num_performers + 1
+                    shared = round(token / total_shares, 2)
+                    equipment = shared
+                else:
+                    shared = ""
+                    equipment = ""
+
+                performances_sheet.append_row([
+                    str(perf_date),
+                    venue,
+                    status,
+                    token if token else "",
+                    shared,
+                    equipment,
+                    notes,
+                    ", ".join(attendees)
+                ])
+                st.success("✅ New performance added.")
+                st.rerun()
