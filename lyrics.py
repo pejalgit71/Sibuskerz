@@ -52,6 +52,7 @@ def search_lyrics_online(artist, title):
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
 st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
+st.sidebar.image("patrick-patrick-star.gif", use_container_width=True)
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
 menu = [
