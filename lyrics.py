@@ -470,6 +470,7 @@ elif choice == "🎞️ Past Performances":
 #             ])
 #             st.success("✅ Performance info saved! Please refresh to view updated data.")
 elif choice == "📍 Performance Venues & Tokens":
+    lang_option = st.selectbox("🌐 Choose Language", ["en", "ms"])
     t = translations[lang_option]
     st.subheader(f"🎪 {t['SiBuskerz Performance Schedule & Appreciation Tokens']}")
     
