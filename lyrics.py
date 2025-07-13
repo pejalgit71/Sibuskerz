@@ -273,12 +273,11 @@ elif choice == "📍 Performance Venues & Tokens":
     st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
 
     # Load worksheet
-    client = gspread.authorize(Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), scopes=SCOPES))
-    sheet = client.open_by_key(SHEET_ID)
-    performance_sheet = sheet.worksheet("performances")
+    performance_sheet = load_performances(performances_sheet)
 
     # Get members count for fair sharing
-    members_df = pd.DataFrame(members_sheet.get_all_records())
+
+    members_df = load_members(members_sheet)
     num_members = len(members_df)
     total_shares = num_members + 1  # 1 share for equipment
 
