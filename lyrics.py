@@ -73,7 +73,7 @@ lyrics_df = get_lyrics_df(worksheet)
 
 # --- VIEW LYRICS ---
 if choice == "📖 View Lyrics/Lihat Lirik":
-    st.image("patrick-patrick-star.gif", width=150)
+    st.image("patrick-patrick-star.gif",use_container_width=False)
     st.subheader("Select a song to view lyrics")
 
     lyrics_df_sorted = lyrics_df.sort_values(by='Title')
