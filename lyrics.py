@@ -552,9 +552,10 @@ elif choice == "📍 Performance Venues & Tokens":
         
         # Rename columns *after* all operations are safe
         summary_df.rename(columns={
-            "Member": _("Member"),
-            "TotalEarned": _("TotalEarned")
+        "Member": t["Member"],
+        "TotalEarned": t["TotalEarned"]
         }, inplace=True)
+
 
         st.dataframe(summary_df)
     
