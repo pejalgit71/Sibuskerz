@@ -327,18 +327,29 @@ elif choice == "📍 Performance Venues & Tokens":
         status = st.selectbox("Status", ["Upcoming", "Done"])
         token = st.number_input("🎁 Total Token Collected (only for Done)", min_value=0.0, value=0.0, step=1.0)
         notes = st.text_area("📝 Notes (optional)")
+    
+        # Load member names for selection
+        member_names = df_members['Name'].tolist()
+        attendees = st.multiselect("🎤 Who performed at this event?", member_names)
+    
         submitted = st.form_submit_button("Save Performance Info")
-
+    
         if submitted:
-            # Calculate shares if Done and token is given
-            if status == "Done" and token > 0:
+            if status == "Done":
+                if not attendees:
+                    st.warning("⚠️ You must select at least one performer before marking as Done.")
+                    st.stop()
+    
+                num_performers = len(attendees)
+                total_shares = num_performers + 1  # +1 for equipment
+    
                 shared = round(token / total_shares, 2)
                 equipment = round(shared, 2)
             else:
                 shared = ""
                 equipment = ""
-
-            # Append to sheet
+    
+            # Save performance data
             performances_sheet.append_row([
                 str(perf_date),
                 venue,
@@ -346,6 +357,7 @@ elif choice == "📍 Performance Venues & Tokens":
                 token if token else "",
                 shared,
                 equipment,
-                notes
+                notes,
+                ", ".join(attendees)  # save performers as string
             ])
             st.success("✅ Performance info saved! Please refresh to view updated data.")
