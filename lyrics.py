@@ -65,7 +65,7 @@ menu = [
 ]
 
 choice = st.sidebar.selectbox("Navigation", menu)
-
+st.sidebar.image("patrick-patrick-star.gif", use_container_width=True)
 worksheet, members_sheet, videos_sheet = get_worksheets()
 lyrics_df = get_lyrics_df(worksheet)
 
