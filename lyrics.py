@@ -9,6 +9,7 @@ SHEET_ID = "1xDkePn-ka6xvfoInEGe0PRWLPd39j7fhigQNEpOFkDw"
 WORKSHEET_NAME1 = "lyrics"
 WORKSHEET_NAME2 = "members"
 WORKSHEET_NAME3 = "videos"
+WORKSHEET_NAME4 = "performances"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # --- GOOGLE SHEETS SETUP ---
@@ -21,7 +22,8 @@ def get_worksheets():
     songs_ws = sheet.worksheet(WORKSHEET_NAME1)
     members_ws = sheet.worksheet(WORKSHEET_NAME2)
     videos_ws = sheet.worksheet(WORKSHEET_NAME3)
-    return songs_ws, members_ws, videos_ws
+    performance_ws = sheet.worksheet(WORKSHEET_NAME4)
+    return songs_ws, members_ws, videos_ws, performance_ws
 
 def get_lyrics_df(ws):
     data = ws.get_all_records()
@@ -37,6 +39,11 @@ def load_members(ws):
 def load_videos(ws):
     df = pd.DataFrame(ws.get_all_records())
     return df.to_dict(orient="records")
+    
+def load_performances(ws)
+    df = pd.DataFrame(ws.get_all_records())
+    return df.to_dict(orient="records")
+
 
 def search_lyrics_online(artist, title):
     try:
