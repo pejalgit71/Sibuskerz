@@ -545,16 +545,27 @@ elif choice == "📍 Performance Venues & Tokens":
             for performer in performers:
                 member_earnings[performer] = member_earnings.get(performer, 0) + share
     
-        summary_df = pd.DataFrame(member_earnings.items(), columns=[_("Member"), _("TotalEarned")])
-        summary_df[_("TotalEarned")] = summary_df[_("TotalEarned")].round(2)
-        summary_df = summary_df.sort_values(by=_("TotalEarned"), ascending=False)
+        summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
+        summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
+        summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
         summary_df.index = range(1, len(summary_df) + 1)
-    
+        
+        # Rename columns *after* all operations are safe
+        summary_df.rename(columns={
+            "Member": _("Member"),
+            "TotalEarned": _("TotalEarned")
+        }, inplace=True)
+
         st.dataframe(summary_df)
     
         st.markdown(f"### 🔍 { _('Check My Total Earnings') }")
-        selected_member = st.selectbox(_("Select Your Name"), summary_df[_("Member")].tolist())
-        personal_earning = summary_df.loc[summary_df[_("Member")] == selected_member, _("TotalEarned")].values[0]
+            
+        member_col = _("Member")
+        earning_col = _("TotalEarned")
+
+        selected_member = st.selectbox(_("Select Your Name"), summary_df[member_col].tolist())
+        personal_earning = summary_df.loc[summary_df[member_col] == selected_member, earning_col].values[0]
+
         st.success(f"💰 {selected_member} { _('has earned') }: **RM {personal_earning:.2f}** { _('so far!') }")
     
     else:
