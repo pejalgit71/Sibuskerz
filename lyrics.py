@@ -56,89 +56,6 @@ def search_lyrics_online(artist, title):
     except:
         return "Error fetching lyrics."
 
-translations = {
-    "en": {
-        "SiBuskerz Performance Schedule & Appreciation Tokens": "",
-        "All Performances (Upcoming & Done)": "",
-        "Token Summary": "",
-        "Total Group Members": "",
-        "Total Unique Performers (from all events)": "",
-        "Total Token Collected": "",
-        "Net Share per Performer": "",
-        "Audio Equipment Fee (1 share)": "",
-        "Total Given to Performers": "",
-        "Total Equipment Share": "",
-        "Undistributed Token": "",
-        "Member Earnings Summary": "",
-        "Check My Total Earnings": "",
-        "Select Your Name": "",
-        "has earned": "",
-        "so far!": "",
-        "No performance records found yet.": "",
-        "Add or Update Performance Info": "",
-        "An upcoming performance already exists. You can update or delete it.": "",
-        "Performance Date": "",
-        "Venue Name": "",
-        "Status": "",
-        "Total Token Collected (for 'Done' only)": "",
-        "Notes (optional)": "",
-        "Who performed at this event?": "",
-        "Update to Done or Edit": "",
-        "Cancel/Delete This Performance": "",
-        "Unable to locate the row in sheet.": "",
-        "Performance has been cancelled and deleted.": "",
-        "Please select at least one performer before marking as Done.": "",
-        "Performance updated successfully.": "",
-        "No upcoming performance found. You can add a new one.": "",
-        "Add New Performance": "",
-        "New performance added.": "",
-        "Member": "",
-        "TotalEarned": ""
-    },
-    "melayu": {
-        "SiBuskerz Performance Schedule & Appreciation Tokens": "Jadual Persembahan SiBuskerz & Token Penghargaan",
-        "All Performances (Upcoming & Done)": "Semua Persembahan (Akan Datang & Selesai)",
-        "Token Summary": "Ringkasan Token",
-        "Total Group Members": "Jumlah Ahli Kumpulan",
-        "Total Unique Performers (from all events)": "Jumlah Unik Persembah Persembahan",
-        "Total Token Collected": "Jumlah Token Diperoleh",
-        "Net Share per Performer": "Bahagian Bersih setiap Persembah",
-        "Audio Equipment Fee (1 share)": "Bayaran Peralatan Audio (1 bahagian)",
-        "Total Given to Performers": "Jumlah Diberi kepada Persembah",
-        "Total Equipment Share": "Jumlah Bahagian Peralatan",
-        "Undistributed Token": "Token Belum Diagihkan",
-        "Member Earnings Summary": "Ringkasan Pendapatan Ahli",
-        "Check My Total Earnings": "Semak Jumlah Pendapatan Saya",
-        "Select Your Name": "Pilih Nama Anda",
-        "has earned": "telah memperoleh",
-        "so far!": "setakat ini!",
-        "No performance records found yet.": "Tiada rekod persembahan ditemui.",
-        "Add or Update Performance Info": "Tambah atau Kemas Kini Maklumat Persembahan",
-        "An upcoming performance already exists. You can update or delete it.": "Persembahan akan datang telah wujud. Anda boleh kemas kini atau padam.",
-        "Performance Date": "Tarikh Persembahan",
-        "Venue Name": "Nama Lokasi",
-        "Status": "Status",
-        "Total Token Collected (for 'Done' only)": "Jumlah Token Diperoleh (untuk 'Selesai' sahaja)",
-        "Notes (optional)": "Catatan (pilihan)",
-        "Who performed at this event?": "Siapa yang membuat persembahan?",
-        "Update to Done or Edit": "Kemas Kini kepada Selesai atau Edit",
-        "Cancel/Delete This Performance": "Batal/Padam Persembahan Ini",
-        "Unable to locate the row in sheet.": "Tidak dapat mengenal pasti baris dalam helaian.",
-        "Performance has been cancelled and deleted.": "Persembahan telah dibatalkan dan dipadam.",
-        "Please select at least one performer before marking as Done.": "Sila pilih sekurang-kurangnya satu persembah sebelum ditandakan sebagai Selesai.",
-        "Performance updated successfully.": "Persembahan berjaya dikemas kini.",
-        "No upcoming performance found. You can add a new one.": "Tiada persembahan akan datang ditemui. Anda boleh tambah baru.",
-        "Add New Performance": "Tambah Persembahan Baru",
-        "New performance added.": "Persembahan baru telah ditambah.",
-        "Member": "Ahli",
-        "TotalEarned": "Jumlah Diperoleh"
-    }
-}
-
-def translate(key, lang):
-    if lang == "en":
-        return key  # Use original English key if language is English
-    return translations.get(lang, {}).get(key, key)
 
 
 # --- CUSTOM STYLES ---
@@ -478,141 +395,128 @@ elif choice == "🎞️ Past Performances":
 #             ])
 #             st.success("✅ Performance info saved! Please refresh to view updated data.")
 elif choice == "📍 Performance Venues & Tokens":
-    lang_option = st.selectbox("🌐 Choose Language", ["en", "melayu"])
-    _ = lambda key: translate(key, lang_option)  # shortcut function for translation
-
-    st.subheader(f"🎪 { _('SiBuskerz Performance Schedule & Appreciation Tokens') }")
     
+    st.subheader("🎪 SiBuskerz Performance Schedule & Appreciation Tokens")
+
     # Load data
     df_perf = pd.DataFrame(performances_sheet.get_all_records())
     df_members = pd.DataFrame(members_sheet.get_all_records())
-    
+
     # Display all performances
     if not df_perf.empty:
-        st.markdown(f"### 🎤 { _('All Performances (Upcoming & Done)') }")
+        st.markdown("### 🎤 All Performances (Upcoming & Done)")
         st.dataframe(df_perf)
-    
+
         # --- PROCESS DONE PERFORMANCES ---
         done_perf = df_perf[df_perf["Status"] == "Done"].copy()
-    
+
         # Clean numeric fields
         done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
         done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
         done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
-    
+
         # Count performers
         done_perf["Performers"] = done_perf["Performers"].fillna("")
         done_perf["NumPerformers"] = done_perf["Performers"].apply(
             lambda x: len([p.strip() for p in x.split(",") if p.strip()])
         )
         done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
-    
+
         # Recalculate share
         done_perf["SharedPerPerson"] = done_perf.apply(
             lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
         )
         done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
-    
+
         # Total calculations
         total_token = done_perf["TotalToken"].sum()
         total_distributed = (done_perf["SharedPerPerson"] * done_perf["NumPerformers"]).sum()
         total_equipment = done_perf["EquipmentShare"].sum()
         total_undistributed = total_token - (total_distributed + total_equipment)
-    
+
         net_per_person = round(total_token / (done_perf["NumPerformers"].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
-    
+
         st.markdown(f"""
-        ### 💰 { _('Token Summary') }
-    
-        - 🧑‍🤝‍🧑 **{_('Total Group Members')}**: {len(df_members)}
-        - 👥 **{_('Total Unique Performers (from all events)')}**: {done_perf['NumPerformers'].sum()}
-        - 🎁 **{_('Total Token Collected')}**: RM {total_token:.2f}
-        - 💸 **{_('Net Share per Performer')}**: RM {net_per_person:.2f}
-        - 🎧 **{_('Audio Equipment Fee (1 share)')}**: RM {net_per_person:.2f}
-        - 🧾 **{_('Total Given to Performers')}**: RM {total_distributed:.2f}
-        - 🎛️ **{_('Total Equipment Share')}**: RM {total_equipment:.2f}
-        - ❓ **{_('Undistributed Token')}**: RM {total_undistributed:.2f}
+        ### 💰 Token Summary
+
+        - 🧑‍🤝‍🧑 **Total Group Members**: {len(df_members)}
+        - 👥 **Total Unique Performers (from all events)**: {done_perf['NumPerformers'].sum()}
+        - 🎁 **Total Token Collected**: RM {total_token:.2f}
+        - 💸 **Net Share per Performer**: RM {net_per_person:.2f}
+        - 🎧 **Audio Equipment Fee (1 share)**: RM {net_per_person:.2f}
+        - 🧾 **Total Given to Performers**: RM {total_distributed:.2f}
+        - 🎛️ **Total Equipment Share**: RM {total_equipment:.2f}
+        - ❓ **Undistributed Token**: RM {total_undistributed:.2f}
         """)
-    
+
         # --- SUMMARY PER MEMBER ---
-        st.markdown(f"### 📊 { _('Member Earnings Summary') }")
+        st.markdown("### 📊 Member Earnings Summary")
         member_earnings = {}
-    
+
         for _, row in done_perf.iterrows():
             performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
             share = row["SharedPerPerson"]
-    
+
             for performer in performers:
                 member_earnings[performer] = member_earnings.get(performer, 0) + share
-    
+
         summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
         summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
         summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
         summary_df.index = range(1, len(summary_df) + 1)
-        
-        # Rename columns *after* all operations are safe
-        summary_df.rename(columns={
-        "Member": _("Member"),
-        "TotalEarned": _("TotalEarned")
-        }, inplace=True)
-
 
         st.dataframe(summary_df)
-    
-        st.markdown(f"### 🔍 { _('Check My Total Earnings') }")
-            
-        member_col = _("Member")
-        earning_col = _("TotalEarned")
 
-        selected_member = st.selectbox(_("Select Your Name"), summary_df[member_col].tolist())
-        personal_earning = summary_df.loc[summary_df[member_col] == selected_member, earning_col].values[0]
+        st.markdown("### 🔍 Check My Total Earnings")
+        selected_member = st.selectbox("Select Your Name", summary_df["Member"].tolist())
+        personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
+        st.success(f"💰 {selected_member} has earned: **RM {personal_earning:.2f}** so far!")
 
-        st.success(f"💰 {selected_member} { _('has earned') }: **RM {personal_earning:.2f}** { _('so far!') }")
-    
     else:
-        st.info(_("No performance records found yet."))
-    
+        st.info("No performance records found yet.")
+
     # --- ADD OR UPDATE PERFORMANCE FORM ---
-    st.markdown(f"### ➕ { _('Add or Update Performance Info') }")
-    
+    st.markdown("### ➕ Add or Update Performance Info")
+
     # Check for first occurrence of "Upcoming"
     upcoming_perf = df_perf[df_perf['Status'] == 'Upcoming']
     
     if not upcoming_perf.empty:
         first_upcoming = upcoming_perf.iloc[0]
-        st.info(f"📅 { _('An upcoming performance already exists. You can update or delete it.') }")
-    
+        st.info("📅 An upcoming performance already exists. You can update or delete it.")
+
         with st.form("update_perf_form", clear_on_submit=False):
-            perf_date = st.date_input("📅 " + _("Performance Date"), pd.to_datetime(first_upcoming['Date']))
-            venue = st.text_input("📍 " + _("Venue Name"), first_upcoming['Venue'])
-            status = st.selectbox(_("Status"), ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
-            token = st.number_input("🎁 " + _("Total Token Collected (for 'Done' only)"), min_value=0.0, value=float(first_upcoming['TotalToken']) if first_upcoming['TotalToken'] else 0.0, step=1.0)
-            notes = st.text_area("📝 " + _("Notes (optional)"), first_upcoming.get('Notes', ''))
+            perf_date = st.date_input("📅 Performance Date", pd.to_datetime(first_upcoming['Date']))
+            venue = st.text_input("📍 Venue Name", first_upcoming['Venue'])
+            status = st.selectbox("Status", ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
+            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=float(first_upcoming['TotalToken']) if first_upcoming['TotalToken'] else 0.0
+, step=1.0) 
+            notes = st.text_area("📝 Notes (optional)", first_upcoming.get('Notes', ''))
             member_names = df_members['Name'].tolist()
             prev_performers = [p.strip() for p in str(first_upcoming.get('Performers', '')).split(',') if p.strip()]
-            attendees = st.multiselect("🎤 " + _("Who performed at this event?"), member_names, default=prev_performers)
-    
+            attendees = st.multiselect("🎤 Who performed at this event?", member_names, default=prev_performers)
+
             col1, col2 = st.columns(2)
-            update_btn = col1.form_submit_button("✅ " + _("Update to Done or Edit"))
-            cancel_btn = col2.form_submit_button("❌ " + _("Cancel/Delete This Performance"))
-    
+            update_btn = col1.form_submit_button("✅ Update to Done or Edit")
+            cancel_btn = col2.form_submit_button("❌ Cancel/Delete This Performance")
+
             row_index = df_perf.index[df_perf['Date'] == first_upcoming['Date']].tolist()
             if row_index:
-                sheet_row = row_index[0] + 2
+                sheet_row = row_index[0] + 2  # +2 to match Google Sheet row (headers + 1-based index)
             else:
-                st.error("❗ " + _("Unable to locate the row in sheet."))
+                st.error("❗ Unable to locate the row in sheet.")
                 st.stop()
-    
+
             if cancel_btn:
                 performances_sheet.delete_rows(sheet_row)
-                st.success("❌ " + _("Performance has been cancelled and deleted."))
+                st.success("❌ Performance has been cancelled and deleted.")
                 st.rerun()
-    
+
             if update_btn:
                 if status == "Done" and not attendees:
-                    st.warning("⚠️ " + _("Please select at least one performer before marking as Done."))
+                    st.warning("⚠️ Please select at least one performer before marking as Done.")
                     st.stop()
-    
+
                 if status == "Done":
                     num_performers = len(attendees)
                     total_shares = num_performers + 1
@@ -621,7 +525,7 @@ elif choice == "📍 Performance Venues & Tokens":
                 else:
                     shared = ""
                     equipment = ""
-    
+
                 performances_sheet.update(f"A{sheet_row}:H{sheet_row}", [[
                     str(perf_date),
                     venue,
@@ -632,27 +536,26 @@ elif choice == "📍 Performance Venues & Tokens":
                     notes,
                     ", ".join(attendees)
                 ]])
-                st.success("✅ " + _("Performance updated successfully."))
+                st.success("✅ Performance updated successfully.")
                 st.rerun()
-    
     else:
-        st.info("🆕 " + _("No upcoming performance found. You can add a new one."))
+        st.info("🆕 No upcoming performance found. You can add a new one.")
         with st.form("add_perf_form", clear_on_submit=True):
-            perf_date = st.date_input("📅 " + _("Performance Date"))
-            venue = st.text_input("📍 " + _("Venue Name"))
-            status = st.selectbox(_("Status"), ["Upcoming", "Done"])
-            token = st.number_input("🎁 " + _("Total Token Collected (for 'Done' only)"), min_value=0.0, value=0.0, step=1.0)
-            notes = st.text_area("📝 " + _("Notes (optional)"))
+            perf_date = st.date_input("📅 Performance Date")
+            venue = st.text_input("📍 Venue Name")
+            status = st.selectbox("Status", ["Upcoming", "Done"])
+            token = st.number_input("🎁 Total Token Collected (for 'Done' only)", min_value=0.0, value=0.0, step=1.0)
+            notes = st.text_area("📝 Notes (optional)")
             member_names = df_members['Name'].tolist()
-            attendees = st.multiselect("🎤 " + _("Who performed at this event?"), member_names)
-    
-            submitted = st.form_submit_button("➕ " + _("Add New Performance"))
-    
+            attendees = st.multiselect("🎤 Who performed at this event?", member_names)
+
+            submitted = st.form_submit_button("➕ Add New Performance")
+
             if submitted:
                 if status == "Done" and not attendees:
-                    st.warning("⚠️ " + _("Please select at least one performer before marking as Done."))
+                    st.warning("⚠️ Please select at least one performer before marking as Done.")
                     st.stop()
-    
+
                 if status == "Done":
                     num_performers = len(attendees)
                     total_shares = num_performers + 1
@@ -661,7 +564,7 @@ elif choice == "📍 Performance Venues & Tokens":
                 else:
                     shared = ""
                     equipment = ""
-    
+
                 performances_sheet.append_row([
                     str(perf_date),
                     venue,
@@ -672,5 +575,5 @@ elif choice == "📍 Performance Venues & Tokens":
                     notes,
                     ", ".join(attendees)
                 ])
-                st.success("✅ " + _("New performance added."))
+                st.success("✅ New performance added.")
                 st.rerun()
