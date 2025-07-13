@@ -435,6 +435,9 @@ elif choice == "📍 Performance Venues & Tokens":
         # Sort highest to lowest
         summary_df = summary_df.sort_values(by="TotalEarned", ascending=False).reset_index(drop=True)
 
+        
+        summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
+        summary_df.index = range(1, len(summary_df) + 1)
         st.dataframe(summary_df)
 
         # Optional: Member selection to view their earnings only
