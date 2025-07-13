@@ -552,8 +552,8 @@ elif choice == "📍 Performance Venues & Tokens":
         
         # Rename columns *after* all operations are safe
         summary_df.rename(columns={
-        "Member": _["Member"],
-        "TotalEarned": _["TotalEarned"]
+        "Member": _("Member"),
+        "TotalEarned": _("TotalEarned")
         }, inplace=True)
 
 
