@@ -342,10 +342,10 @@ elif choice == "📍 Performance Venues & Tokens":
 
         st.dataframe(summary_df)
 
-        st.markdown("### 🔍 Check My Total Earnings")
+        st.markdown("### 🔍 Ketahui Jumlah Token masing-masing ")
         selected_member = st.selectbox("Pilih Nama Anda", summary_df["Member"].tolist())
         personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
-        st.success(f"💰 {selected_member} has earned: **RM {personal_earning:.2f}** so far!")
+        st.success(f"💰 {selected_member} punya jumlah token: **RM {personal_earning:.2f}** setakat ini!")
 
     else:
         st.info("Tiada rekod persembahan yang dijumpai.")
