@@ -95,7 +95,7 @@ menu = [
     "🎤 Performance Mode"
     
 ]
-
+st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
 choice = st.sidebar.selectbox("Navigation", menu)
 
 worksheet, members_sheet, videos_sheet, performances_sheet = get_worksheets()
