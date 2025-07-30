@@ -93,7 +93,7 @@ menu = [
     "🌐 Search Lyrics Online",
     "👥 Meet The Members",
     "🎤 Performance Mode",
-    "🎞️ Past Performances"
+    "🎞️ Past Performances/ Persembahan lalu"
     
 ]
 
