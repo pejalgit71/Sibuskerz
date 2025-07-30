@@ -92,7 +92,8 @@ menu = [
     "➕ Add New Song/Masukkan lirik Lagu baru",
     "🌐 Search Lyrics Online",
     "👥 Meet The Members",
-    "🎤 Performance Mode"
+    "🎤 Performance Mode",
+    "🎞️ Past Performances"
     
 ]
 
@@ -272,265 +273,271 @@ elif choice == "🎞️ Past Performances":
 elif choice == "📍 Performance Venues & Tokens":
     
     st.subheader("🎪 Jadual Persembahan SiBuskerz & Token Penghargaan")
+    password = st.text_input("Enter admin password to continue:", type="password")
 
-    # Load data
-    df_perf = pd.DataFrame(performances_sheet.get_all_records())
-    df_members = pd.DataFrame(members_sheet.get_all_records())
+    if password == st.secrets["admin_password"]:
+        st.success("Access granted.")
 
-    # Display all performances
-    if not df_perf.empty:
-        st.markdown("### 🎤 All Performances (Upcoming & Done)")
-        st.dataframe(df_perf)
-
-        # --- PROCESS DONE PERFORMANCES ---
-        # done_perf = df_perf[df_perf["Status"] == "Done"].copy()
-
-        # # Clean numeric fields
-        # done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
-        # done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
-        # done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
-
-        # # Count performers
-        # done_perf["Performers"] = done_perf["Performers"].fillna("")
-        # done_perf["NumPerformers"] = done_perf["Performers"].apply(
-        #     lambda x: len([p.strip() for p in x.split(",") if p.strip()])
-        # )
-        # done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
-
-        # # Recalculate share
-        # done_perf["SharedPerPerson"] = done_perf.apply(
-        #     lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
-        # )
-        # done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
-
-        # # Total calculations
-        # total_token = done_perf["TotalToken"].sum()
-        # total_distributed = (done_perf["SharedPerPerson"] * done_perf["NumPerformers"]).sum()
-        # total_equipment = done_perf["EquipmentShare"].sum()
-        # total_undistributed = total_token - (total_distributed + total_equipment)
-
-        # net_per_person = round(total_token / (done_perf["NumPerformers"].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
-
-        # st.markdown(f"""
-        # ### 💰 Token Summary
-
-        # - 🧑‍🤝‍🧑 **Jumlah Ahli Kumpulan**: {len(df_members)}
-        # - 👥 **Jumlah unik artis terlibat (dari semua persembahan)**: {done_perf['NumPerformers'].sum()}
-        # - 🎁 **Jumlah Token penghargaan yang diterima**: RM {total_token:.2f}
-        # - 💸 **Jumlah bersih untuk setiap ahli**: RM {net_per_person:.2f}
-        # - 🎧 **Yuran Peralatan Audio (1 share)**: RM {net_per_person:.2f}
-        # - 🧾 **Jumlah pembahagian token kepada ahli**: RM {total_distributed:.2f}
-        # - 🎛️ **Jumlah Yuran Peralatan**: RM {total_equipment:.2f}
-        # - ❓ **Token baki belum jelas**: RM {total_undistributed:.2f}
-        # """)
-
-        # # --- SUMMARY PER MEMBER ---
-        # st.markdown("### 📊 Ringkasan Jumlah Yang Ahli Terima")
-        # member_earnings = {}
-
-        # for _, row in done_perf.iterrows():
-        #     performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
-        #     share = row["SharedPerPerson"]
-
-        #     for performer in performers:
-        #         member_earnings[performer] = member_earnings.get(performer, 0) + share
-
-        # summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
-        # summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
-        # summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
-        # summary_df.index = range(1, len(summary_df) + 1)
-
-        # st.dataframe(summary_df)
-
-        # st.markdown("### 🔍 Ketahui Jumlah Token masing-masing ")
-        # selected_member = st.selectbox("Pilih Nama Anda", summary_df["Member"].tolist())
-        # personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
-        # st.success(f"💰 {selected_member} punya jumlah token: **RM {personal_earning:.2f}** setakat ini!")
-        # --- PROCESS DONE PERFORMANCES (Unpaid only) ---
-        if "PaidStatus" not in df_perf.columns:
-            df_perf["PaidStatus"] = ""  # fallback if column not yet created
-        
-        done_perf = df_perf[(df_perf["Status"] == "Done") & (df_perf["PaidStatus"] != "Paid")].copy()
-        
-        if done_perf.empty:
-            st.info("✅ Semua persembahan telah dibayar.")
-        else:
-            # Clean numeric fields
-            done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
-            done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
-            done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
-        
-            # Count performers
-            done_perf["Performers"] = done_perf["Performers"].fillna("")
-            done_perf["NumPerformers"] = done_perf["Performers"].apply(
-                lambda x: len([p.strip() for p in x.split(",") if p.strip()])
-            )
-            done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
-        
-            # Recalculate share
-            done_perf["SharedPerPerson"] = done_perf.apply(
-                lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
-            )
-            done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
-        
-            # Total calculations
-            total_token = done_perf["TotalToken"].sum()
-            total_distributed = (done_perf["SharedPerPerson"] * done_perf["NumPerformers"]).sum()
-            total_equipment = done_perf["EquipmentShare"].sum()
-            total_undistributed = total_token - (total_distributed + total_equipment)
-        
-            net_per_person = round(total_token / (done_perf["NumPerformers"].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
-        
-            st.markdown(f"""
-            ### 💰 Token Summary (Belum Dibayar Sahaja)
-        
-            - 🧑‍🤝‍🧑 **Jumlah Ahli Kumpulan**: {len(df_members)}
-            - 👥 **Jumlah artis terlibat dalam persembahan ini**: {done_perf['NumPerformers'].sum()}
-            - 🎁 **Jumlah Token penghargaan (belum dibayar)**: RM {total_token:.2f}
-            - 💸 **Jumlah bersih untuk setiap ahli**: RM {net_per_person:.2f}
-            - 🎧 **Yuran Peralatan Audio (1 share)**: RM {net_per_person:.2f}
-            - 🧾 **Jumlah pembahagian token kepada ahli**: RM {total_distributed:.2f}
-            - 🎛️ **Jumlah Yuran Peralatan**: RM {total_equipment:.2f}
-            - ❓ **Token baki belum jelas**: RM {total_undistributed:.2f}
-            """)
-        
-            # --- SUMMARY PER MEMBER ---
-            st.markdown("### 📊 Ringkasan Jumlah Yang Ahli Terima (Belum Dibayar)")
-            member_earnings = {}
-        
-            for _, row in done_perf.iterrows():
-                performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
-                share = row["SharedPerPerson"]
-        
-                for performer in performers:
-                    member_earnings[performer] = member_earnings.get(performer, 0) + share
-        
-            summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
-            summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
-            summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
-            summary_df.index = range(1, len(summary_df) + 1)
-        
-            st.dataframe(summary_df)
-        
-            st.markdown("### 🔍 Ketahui Jumlah Token Anda")
-            selected_member = st.selectbox("Pilih Nama Anda", summary_df["Member"].tolist())
-            personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
-            st.success(f"💰 {selected_member} punya jumlah token yang **belum dibayar**: **RM {personal_earning:.2f}**")
-        
-            # --- ✅ MARK AS PAID BUTTON ---
-            if st.button("✅ Tandakan Semua Persembahan Ini Sebagai Sudah Dibayar"):
-                for _, row in done_perf.iterrows():
-                    row_date = row["Date"]
-                    match_index = df_perf[df_perf["Date"] == row_date].index.tolist()
-                    if match_index:
-                        sheet_row = match_index[0] + 2  # 1-based + header
-                        col_index = df_perf.columns.get_loc("PaidStatus") + 1  # 1-based
-                        performances_sheet.update_cell(sheet_row, col_index, "Paid")
-                st.success("💸 Semua persembahan ini telah ditandakan sebagai 'Paid'.")
-                st.rerun()
-        
-            else:
-                st.info("Tiada rekod persembahan yang dijumpai.")
-
-    # --- ADD OR UPDATE PERFORMANCE FORM ---
-    st.markdown("### ➕ Tambah atau Kemaskini Info Persembahan")
-
-    # Check for first occurrence of "Upcoming"
-    upcoming_perf = df_perf[df_perf['Status'] == 'Upcoming']
+        # Load data
+        df_perf = pd.DataFrame(performances_sheet.get_all_records())
+        df_members = pd.DataFrame(members_sheet.get_all_records())
     
-    if not upcoming_perf.empty:
-        first_upcoming = upcoming_perf.iloc[0]
-        st.info("📅 Satu persembahan akan datang dijumpai. Anda boleh kemaskini atau padamkan.")
-
-        with st.form("update_perf_form", clear_on_submit=False):
-            perf_date = st.date_input("📅 Tarikh Persembahan", pd.to_datetime(first_upcoming['Date']))
-            venue = st.text_input("📍 Nama Lokasi", first_upcoming['Venue'])
-            status = st.selectbox("Status", ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
-            token = st.number_input("🎁 Jumlah Token Diterima (untuk 'Done' sahaja)", min_value=0.0, value=float(first_upcoming['TotalToken']) if first_upcoming['TotalToken'] else 0.0
-, step=1.0) 
-            notes = st.text_area("📝 Nota (pilihan)", first_upcoming.get('Notes', ''))
-            member_names = df_members['Name'].tolist()
-            prev_performers = [p.strip() for p in str(first_upcoming.get('Performers', '')).split(',') if p.strip()]
-            attendees = st.multiselect("🎤 Siapa yang buat persembahan?", member_names, default=prev_performers)
-
-            col1, col2 = st.columns(2)
-            update_btn = col1.form_submit_button("✅ Kemaskini kepada Done or Edit")
-            cancel_btn = col2.form_submit_button("❌ Batal/Padam persembahan ini")
-
-            row_index = df_perf.index[df_perf['Date'] == first_upcoming['Date']].tolist()
-            if row_index:
-                sheet_row = row_index[0] + 2  # +2 to match Google Sheet row (headers + 1-based index)
+        # Display all performances
+        if not df_perf.empty:
+            st.markdown("### 🎤 All Performances (Upcoming & Done)")
+            st.dataframe(df_perf)
+    
+            # --- PROCESS DONE PERFORMANCES ---
+            # done_perf = df_perf[df_perf["Status"] == "Done"].copy()
+    
+            # # Clean numeric fields
+            # done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
+            # done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
+            # done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
+    
+            # # Count performers
+            # done_perf["Performers"] = done_perf["Performers"].fillna("")
+            # done_perf["NumPerformers"] = done_perf["Performers"].apply(
+            #     lambda x: len([p.strip() for p in x.split(",") if p.strip()])
+            # )
+            # done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
+    
+            # # Recalculate share
+            # done_perf["SharedPerPerson"] = done_perf.apply(
+            #     lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
+            # )
+            # done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
+    
+            # # Total calculations
+            # total_token = done_perf["TotalToken"].sum()
+            # total_distributed = (done_perf["SharedPerPerson"] * done_perf["NumPerformers"]).sum()
+            # total_equipment = done_perf["EquipmentShare"].sum()
+            # total_undistributed = total_token - (total_distributed + total_equipment)
+    
+            # net_per_person = round(total_token / (done_perf["NumPerformers"].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
+    
+            # st.markdown(f"""
+            # ### 💰 Token Summary
+    
+            # - 🧑‍🤝‍🧑 **Jumlah Ahli Kumpulan**: {len(df_members)}
+            # - 👥 **Jumlah unik artis terlibat (dari semua persembahan)**: {done_perf['NumPerformers'].sum()}
+            # - 🎁 **Jumlah Token penghargaan yang diterima**: RM {total_token:.2f}
+            # - 💸 **Jumlah bersih untuk setiap ahli**: RM {net_per_person:.2f}
+            # - 🎧 **Yuran Peralatan Audio (1 share)**: RM {net_per_person:.2f}
+            # - 🧾 **Jumlah pembahagian token kepada ahli**: RM {total_distributed:.2f}
+            # - 🎛️ **Jumlah Yuran Peralatan**: RM {total_equipment:.2f}
+            # - ❓ **Token baki belum jelas**: RM {total_undistributed:.2f}
+            # """)
+    
+            # # --- SUMMARY PER MEMBER ---
+            # st.markdown("### 📊 Ringkasan Jumlah Yang Ahli Terima")
+            # member_earnings = {}
+    
+            # for _, row in done_perf.iterrows():
+            #     performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
+            #     share = row["SharedPerPerson"]
+    
+            #     for performer in performers:
+            #         member_earnings[performer] = member_earnings.get(performer, 0) + share
+    
+            # summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
+            # summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
+            # summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
+            # summary_df.index = range(1, len(summary_df) + 1)
+    
+            # st.dataframe(summary_df)
+    
+            # st.markdown("### 🔍 Ketahui Jumlah Token masing-masing ")
+            # selected_member = st.selectbox("Pilih Nama Anda", summary_df["Member"].tolist())
+            # personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
+            # st.success(f"💰 {selected_member} punya jumlah token: **RM {personal_earning:.2f}** setakat ini!")
+            # --- PROCESS DONE PERFORMANCES (Unpaid only) ---
+            if "PaidStatus" not in df_perf.columns:
+                df_perf["PaidStatus"] = ""  # fallback if column not yet created
+            
+            done_perf = df_perf[(df_perf["Status"] == "Done") & (df_perf["PaidStatus"] != "Paid")].copy()
+            
+            if done_perf.empty:
+                st.info("✅ Semua persembahan telah dibayar.")
             else:
-                st.error("❗ Unable to locate the row in sheet.")
-                st.stop()
-
-            if cancel_btn:
-                performances_sheet.delete_rows(sheet_row)
-                st.success("❌ Persembahan Telah Dibatalkan dan dipadamkan.")
-                st.rerun()
-
-            if update_btn:
-                if status == "Done" and not attendees:
-                    st.warning("⚠️ Sila pilih artis yang terlibat sebelum penandaan sebagai Done.")
-                    st.stop()
-
-                if status == "Done":
-                    num_performers = len(attendees)
-                    total_shares = num_performers + 1
-                    shared = round(token / total_shares, 2)
-                    equipment = shared
+                # Clean numeric fields
+                done_perf['TotalToken'] = pd.to_numeric(done_perf['TotalToken'], errors='coerce').fillna(0)
+                done_perf['SharedPerPerson'] = pd.to_numeric(done_perf['SharedPerPerson'], errors='coerce').fillna(0)
+                done_perf['EquipmentShare'] = pd.to_numeric(done_perf['EquipmentShare'], errors='coerce').fillna(0)
+            
+                # Count performers
+                done_perf["Performers"] = done_perf["Performers"].fillna("")
+                done_perf["NumPerformers"] = done_perf["Performers"].apply(
+                    lambda x: len([p.strip() for p in x.split(",") if p.strip()])
+                )
+                done_perf["TotalShares"] = done_perf["NumPerformers"] + 1
+            
+                # Recalculate share
+                done_perf["SharedPerPerson"] = done_perf.apply(
+                    lambda row: round(row["TotalToken"] / row["TotalShares"], 2) if row["TotalShares"] > 0 else 0, axis=1
+                )
+                done_perf["EquipmentShare"] = done_perf["SharedPerPerson"]
+            
+                # Total calculations
+                total_token = done_perf["TotalToken"].sum()
+                total_distributed = (done_perf["SharedPerPerson"] * done_perf["NumPerformers"]).sum()
+                total_equipment = done_perf["EquipmentShare"].sum()
+                total_undistributed = total_token - (total_distributed + total_equipment)
+            
+                net_per_person = round(total_token / (done_perf["NumPerformers"].sum() + len(done_perf)), 2) if total_token > 0 else 0.0
+            
+                st.markdown(f"""
+                ### 💰 Token Summary (Belum Dibayar Sahaja)
+            
+                - 🧑‍🤝‍🧑 **Jumlah Ahli Kumpulan**: {len(df_members)}
+                - 👥 **Jumlah artis terlibat dalam persembahan ini**: {done_perf['NumPerformers'].sum()}
+                - 🎁 **Jumlah Token penghargaan (belum dibayar)**: RM {total_token:.2f}
+                - 💸 **Jumlah bersih untuk setiap ahli**: RM {net_per_person:.2f}
+                - 🎧 **Yuran Peralatan Audio (1 share)**: RM {net_per_person:.2f}
+                - 🧾 **Jumlah pembahagian token kepada ahli**: RM {total_distributed:.2f}
+                - 🎛️ **Jumlah Yuran Peralatan**: RM {total_equipment:.2f}
+                - ❓ **Token baki belum jelas**: RM {total_undistributed:.2f}
+                """)
+            
+                # --- SUMMARY PER MEMBER ---
+                st.markdown("### 📊 Ringkasan Jumlah Yang Ahli Terima (Belum Dibayar)")
+                member_earnings = {}
+            
+                for _, row in done_perf.iterrows():
+                    performers = [name.strip() for name in str(row["Performers"]).split(",") if name.strip()]
+                    share = row["SharedPerPerson"]
+            
+                    for performer in performers:
+                        member_earnings[performer] = member_earnings.get(performer, 0) + share
+            
+                summary_df = pd.DataFrame(member_earnings.items(), columns=["Member", "TotalEarned"])
+                summary_df["TotalEarned"] = summary_df["TotalEarned"].round(2)
+                summary_df = summary_df.sort_values(by="TotalEarned", ascending=False)
+                summary_df.index = range(1, len(summary_df) + 1)
+            
+                st.dataframe(summary_df)
+            
+                st.markdown("### 🔍 Ketahui Jumlah Token Anda")
+                selected_member = st.selectbox("Pilih Nama Anda", summary_df["Member"].tolist())
+                personal_earning = summary_df.loc[summary_df["Member"] == selected_member, "TotalEarned"].values[0]
+                st.success(f"💰 {selected_member} punya jumlah token yang **belum dibayar**: **RM {personal_earning:.2f}**")
+            
+                # --- ✅ MARK AS PAID BUTTON ---
+                if st.button("✅ Tandakan Semua Persembahan Ini Sebagai Sudah Dibayar"):
+                    for _, row in done_perf.iterrows():
+                        row_date = row["Date"]
+                        match_index = df_perf[df_perf["Date"] == row_date].index.tolist()
+                        if match_index:
+                            sheet_row = match_index[0] + 2  # 1-based + header
+                            col_index = df_perf.columns.get_loc("PaidStatus") + 1  # 1-based
+                            performances_sheet.update_cell(sheet_row, col_index, "Paid")
+                    st.success("💸 Semua persembahan ini telah ditandakan sebagai 'Paid'.")
+                    st.rerun()
+            
                 else:
-                    shared = ""
-                    equipment = ""
-
-                performances_sheet.update(f"A{sheet_row}:H{sheet_row}", [[
-                    str(perf_date),
-                    venue,
-                    status,
-                    token if token else "",
-                    shared,
-                    equipment,
-                    notes,
-                    ", ".join(attendees)
-                ]])
-                st.success("✅ Persembahan telah dikemaskini.")
-                st.rerun()
-    else:
-        st.info("🆕 Persembahan akan datang tidak dijumpai. Anda boleh tambah yang baru.")
-        with st.form("add_perf_form", clear_on_submit=True):
-            perf_date = st.date_input("📅 Tarikh Persembahan")
-            venue = st.text_input("📍 Nama Lokasi")
-            status = st.selectbox("Status", ["Upcoming", "Done"])
-            token = st.number_input("🎁 Jumlah Kutipan Token  (untuk 'Done' sahaja)", min_value=0.0, value=0.0, step=1.0)
-            notes = st.text_area("📝 Nota (pilihan sahaja)")
-            member_names = df_members['Name'].tolist()
-            attendees = st.multiselect("🎤 Siapa akan buat persembahan?", member_names)
-
-            submitted = st.form_submit_button("➕ Tambah Persembahan")
-
-            if submitted:
-                if status == "Done" and not attendees:
-                    st.warning("⚠️ Pilih sekurang-kurangnya satu artis sebelum tanda sebagai Done.")
-                    st.stop()
-
-                if status == "Done":
-                    num_performers = len(attendees)
-                    total_shares = num_performers + 1
-                    shared = round(token / total_shares, 2)
-                    equipment = shared
+                    st.info("Tiada rekod persembahan yang dijumpai.")
+    
+        # --- ADD OR UPDATE PERFORMANCE FORM ---
+        st.markdown("### ➕ Tambah atau Kemaskini Info Persembahan")
+    
+        # Check for first occurrence of "Upcoming"
+        upcoming_perf = df_perf[df_perf['Status'] == 'Upcoming']
+        
+        if not upcoming_perf.empty:
+            first_upcoming = upcoming_perf.iloc[0]
+            st.info("📅 Satu persembahan akan datang dijumpai. Anda boleh kemaskini atau padamkan.")
+    
+            with st.form("update_perf_form", clear_on_submit=False):
+                perf_date = st.date_input("📅 Tarikh Persembahan", pd.to_datetime(first_upcoming['Date']))
+                venue = st.text_input("📍 Nama Lokasi", first_upcoming['Venue'])
+                status = st.selectbox("Status", ["Upcoming", "Done"], index=1 if first_upcoming['Status'] == "Done" else 0)
+                token = st.number_input("🎁 Jumlah Token Diterima (untuk 'Done' sahaja)", min_value=0.0, value=float(first_upcoming['TotalToken']) if first_upcoming['TotalToken'] else 0.0
+    , step=1.0) 
+                notes = st.text_area("📝 Nota (pilihan)", first_upcoming.get('Notes', ''))
+                member_names = df_members['Name'].tolist()
+                prev_performers = [p.strip() for p in str(first_upcoming.get('Performers', '')).split(',') if p.strip()]
+                attendees = st.multiselect("🎤 Siapa yang buat persembahan?", member_names, default=prev_performers)
+    
+                col1, col2 = st.columns(2)
+                update_btn = col1.form_submit_button("✅ Kemaskini kepada Done or Edit")
+                cancel_btn = col2.form_submit_button("❌ Batal/Padam persembahan ini")
+    
+                row_index = df_perf.index[df_perf['Date'] == first_upcoming['Date']].tolist()
+                if row_index:
+                    sheet_row = row_index[0] + 2  # +2 to match Google Sheet row (headers + 1-based index)
                 else:
-                    shared = ""
-                    equipment = ""
-
-                performances_sheet.append_row([
-                    str(perf_date),
-                    venue,
-                    status,
-                    token if token else "",
-                    shared,
-                    equipment,
-                    notes,
-                    ", ".join(attendees)
-                ])
-                st.success("✅ Persembahan baharu telah dimasukkan.")
-                st.rerun()
+                    st.error("❗ Unable to locate the row in sheet.")
+                    st.stop()
+    
+                if cancel_btn:
+                    performances_sheet.delete_rows(sheet_row)
+                    st.success("❌ Persembahan Telah Dibatalkan dan dipadamkan.")
+                    st.rerun()
+    
+                if update_btn:
+                    if status == "Done" and not attendees:
+                        st.warning("⚠️ Sila pilih artis yang terlibat sebelum penandaan sebagai Done.")
+                        st.stop()
+    
+                    if status == "Done":
+                        num_performers = len(attendees)
+                        total_shares = num_performers + 1
+                        shared = round(token / total_shares, 2)
+                        equipment = shared
+                    else:
+                        shared = ""
+                        equipment = ""
+    
+                    performances_sheet.update(f"A{sheet_row}:H{sheet_row}", [[
+                        str(perf_date),
+                        venue,
+                        status,
+                        token if token else "",
+                        shared,
+                        equipment,
+                        notes,
+                        ", ".join(attendees)
+                    ]])
+                    st.success("✅ Persembahan telah dikemaskini.")
+                    st.rerun()
+        else:
+            st.info("🆕 Persembahan akan datang tidak dijumpai. Anda boleh tambah yang baru.")
+            with st.form("add_perf_form", clear_on_submit=True):
+                perf_date = st.date_input("📅 Tarikh Persembahan")
+                venue = st.text_input("📍 Nama Lokasi")
+                status = st.selectbox("Status", ["Upcoming", "Done"])
+                token = st.number_input("🎁 Jumlah Kutipan Token  (untuk 'Done' sahaja)", min_value=0.0, value=0.0, step=1.0)
+                notes = st.text_area("📝 Nota (pilihan sahaja)")
+                member_names = df_members['Name'].tolist()
+                attendees = st.multiselect("🎤 Siapa akan buat persembahan?", member_names)
+    
+                submitted = st.form_submit_button("➕ Tambah Persembahan")
+    
+                if submitted:
+                    if status == "Done" and not attendees:
+                        st.warning("⚠️ Pilih sekurang-kurangnya satu artis sebelum tanda sebagai Done.")
+                        st.stop()
+    
+                    if status == "Done":
+                        num_performers = len(attendees)
+                        total_shares = num_performers + 1
+                        shared = round(token / total_shares, 2)
+                        equipment = shared
+                    else:
+                        shared = ""
+                        equipment = ""
+    
+                    performances_sheet.append_row([
+                        str(perf_date),
+                        venue,
+                        status,
+                        token if token else "",
+                        shared,
+                        equipment,
+                        notes,
+                        ", ".join(attendees)
+                    ])
+                    st.success("✅ Persembahan baharu telah dimasukkan.")
+                    st.rerun()
+    elif password:
+        st.error("Incorrect password.")
