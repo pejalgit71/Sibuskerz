@@ -236,7 +236,7 @@ elif choice == "🎤 Performance Mode":
                 st.session_state.pop("current_song_index", None)
 
 # --- VIDEO GALLERY ---
-elif choice == "🎞️ Past Performances":
+elif choice == "🎞️ Past Performances/ Persembahan lalu":
     st.subheader("🎬 SiBuskerz Video Performances")
 
     videos = load_videos(videos_sheet)  # Your function that loads videos from the Google Sheet
