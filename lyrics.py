@@ -82,7 +82,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="🎤 SIBuskerz Lyrics App", layout="wide")
-st.sidebar.image("SIBuskerz.JPG", use_container_width=True)
+st.sidebar.image("SIBuskerz.JPG", width='stretch')
 
 st.title("🎶 SIBuskerz Lyrics Performance©")
 
@@ -98,7 +98,7 @@ menu = [
 ]
 
 choice = st.sidebar.selectbox("Navigation", menu)
-st.sidebar.image("SIBuskerzTronoh.JPG", use_container_width=True)
+st.sidebar.image("SIBuskerzTronoh.JPG", width='stretch')
 worksheet, members_sheet, videos_sheet, performances_sheet = get_worksheets()
 lyrics_df = get_lyrics_df(worksheet)
 
@@ -173,7 +173,7 @@ elif choice == "👥 Meet The Members":
         with st.container():
             cols = st.columns([1, 2])
             with cols[0]:
-                st.image(member["Photo"], use_container_width=True)
+                st.image(member["Photo"], width='stretch')
             with cols[1]:
                 st.markdown(f"### {member['Name']}")
                 st.markdown(f"**Role:** {member['Role']}")
